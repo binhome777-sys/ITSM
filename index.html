@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ITSM · 농정원 IT서비스 관리시스템</title>
+<style>
+:root {
+  --navy:#0f2744; --navy2:#1a3a5c; --navy3:#2a5080;
+  --gold:#c8a951; --gold2:#e8c96a; --gold-soft:#f5e9c0;
+  --bg:#f0f3f8; --card:#fff; --border:#d4dce8;
+  --text:#1a2436; --sub:#5a6a82; --muted:#9aaabb;
+  --green:#2d7d46; --green-bg:#e6f4ea;
+  --orange:#c05000; --orange-bg:#fff0e6;
+  --blue:#1a5c8a; --blue-bg:#e3f0fb;
+  --red:#a02020; --red-bg:#fdecea;
+  --radius:10px; --shadow:0 2px 12px rgba(15,39,68,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;}
+
+/* ── 로그인 ── */
+.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy3) 100%);}
+.login-card{background:#fff;border-radius:16px;padding:44px 40px;width:400px;
+  box-shadow:0 24px 64px rgba(0,0,0,.28);}
+.login-emblem{text-align:center;margin-bottom:28px;}
+.login-emblem .org{font-size:11px;color:var(--sub);letter-spacing:2px;font-weight:700;
+  text-transform:uppercase;margin-bottom:8px;}
+.login-emblem h1{font-size:20px;font-weight:700;color:var(--navy);line-height:1.35;}
+.login-emblem .sub{font-size:12px;color:var(--sub);margin-top:5px;}
+.login-divider{height:2px;background:linear-gradient(90deg,var(--gold),transparent);
+  margin:0 0 24px;}
+.lbl{display:block;font-size:11px;font-weight:700;color:var(--sub);
+  letter-spacing:.5px;margin-bottom:5px;text-transform:uppercase;}
+.inp{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:8px;
+  font-family:inherit;font-size:13px;color:var(--text);outline:none;transition:border .15s;
+  background:#fff;}
+.inp:focus{border-color:var(--navy3);}
+.fg{margin-bottom:14px;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;
+  border:none;font-family:inherit;transition:all .15s;text-decoration:none;}
+.btn-navy{background:var(--navy);color:#fff;width:100%;}
+.btn-navy:hover{background:var(--navy3);}
+.btn-gold{background:var(--gold);color:var(--navy);}
+.btn-gold:hover{opacity:.9;}
+.btn-ghost{background:transparent;color:var(--navy2);border:1.5px solid var(--border);}
+.btn-ghost:hover{background:#eef2f7;}
+.btn-sm{padding:6px 12px;font-size:12px;}
+.btn-xs{padding:4px 9px;font-size:11px;border-radius:6px;}
+.btn-danger{background:var(--red);color:#fff;}
+.err-msg{color:var(--red);font-size:12px;text-align:center;margin-top:8px;min-height:18px;}
+.hint{margin-top:16px;padding-top:14px;border-top:1px solid var(--border);
+  font-size:12px;color:var(--muted);text-align:center;line-height:1.9;}
+
+/* ── 비밀번호 강제변경 ── */
+.pw-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy3) 100%);}
+.pw-card{background:#fff;border-radius:16px;padding:40px;width:420px;
+  box-shadow:0 24px 64px rgba(0,0,0,.28);}
+.pw-card h2{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:6px;}
+.pw-card .desc{font-size:13px;color:var(--sub);line-height:1.6;margin-bottom:22px;}
+.pw-checks{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+.pw-check{font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600;}
+.pw-check.ok{background:var(--green-bg);color:var(--green);}
+.pw-check.no{background:#f0f0f0;color:var(--muted);}
+
+/* ── 레이아웃 ── */
+.app{display:flex;min-height:100vh;}
+.sidebar{width:230px;background:var(--navy);display:flex;flex-direction:column;
+  flex-shrink:0;position:fixed;top:0;left:0;bottom:0;z-index:200;}
+.sb-logo{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.08);}
+.sb-logo .mark{font-size:10px;color:var(--gold);letter-spacing:1.5px;font-weight:700;margin-bottom:4px;}
+.sb-logo .title{font-size:13px;font-weight:700;color:#fff;line-height:1.4;}
+.sb-logo .role-tag{display:inline-block;margin-top:5px;font-size:10px;padding:2px 8px;
+  border-radius:4px;font-weight:700;}
+.role-admin{background:var(--gold);color:var(--navy);}
+.role-user{background:rgba(255,255,255,.12);color:rgba(255,255,255,.7);}
+.nav-group{padding:10px 8px 4px;}
+.nav-sec-label{font-size:10px;color:rgba(255,255,255,.35);letter-spacing:1px;
+  padding:0 8px;margin-bottom:3px;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:7px;
+  cursor:pointer;color:rgba(255,255,255,.65);font-size:13px;font-weight:500;
+  transition:all .15s;margin-bottom:1px;user-select:none;}
+.nav-item:hover{background:rgba(255,255,255,.07);color:#fff;}
+.nav-item.on{background:var(--gold);color:var(--navy);font-weight:700;}
+.nav-item .ic{font-size:16px;width:20px;text-align:center;flex-shrink:0;}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;
+  font-weight:700;padding:1px 7px;border-radius:10px;}
+.sb-foot{margin-top:auto;padding:12px 8px;border-top:1px solid rgba(255,255,255,.08);}
+.user-chip{display:flex;align-items:center;gap:9px;padding:9px 10px;
+  background:rgba(255,255,255,.06);border-radius:8px;}
+.user-av{width:32px;height:32px;background:var(--gold);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-weight:700;
+  font-size:13px;color:var(--navy);flex-shrink:0;}
+.user-name{color:#fff;font-size:13px;font-weight:600;}
+.user-sub{color:rgba(255,255,255,.4);font-size:11px;margin-top:1px;}
+.logout-btn{background:none;border:none;color:rgba(255,255,255,.4);font-size:11px;
+  cursor:pointer;padding:5px 10px;font-family:inherit;margin-top:5px;width:100%;
+  text-align:left;transition:color .1s;}
+.logout-btn:hover{color:rgba(255,255,255,.8);}
+.main{margin-left:230px;flex:1;display:flex;flex-direction:column;}
+.topbar{background:var(--card);border-bottom:1px solid var(--border);
+  padding:0 24px;height:54px;display:flex;align-items:center;gap:12px;
+  position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(15,39,68,.06);}
+.topbar-ttl{font-size:15px;font-weight:700;color:var(--navy);}
+.topbar-sub{font-size:11px;color:var(--sub);margin-top:1px;}
+.topbar-right{margin-left:auto;display:flex;gap:8px;align-items:center;}
+.content{padding:22px 26px;flex:1;}
+.page{display:none;}.page.on{display:block;}
+
+/* ── 카드 & 통계 ── */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.stat-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px 18px;position:relative;overflow:hidden;box-shadow:var(--shadow);}
+.stat-box::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.stat-box.c1::after{background:var(--navy2);}
+.stat-box.c2::after{background:var(--orange);}
+.stat-box.c3::after{background:var(--blue);}
+.stat-box.c4::after{background:var(--green);}
+.stat-lbl{font-size:11px;color:var(--sub);font-weight:700;letter-spacing:.4px;margin-bottom:6px;}
+.stat-val{font-size:28px;font-weight:700;color:var(--navy);line-height:1;}
+.stat-detail{font-size:11px;color:var(--muted);margin-top:4px;}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  overflow:hidden;margin-bottom:18px;box-shadow:var(--shadow);}
+.panel-head{padding:13px 18px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;}
+.panel-title{font-size:13px;font-weight:700;color:var(--navy);}
+.panel-right{margin-left:auto;display:flex;gap:8px;align-items:center;}
+.search-row{display:flex;align-items:center;gap:5px;background:var(--bg);
+  border:1.5px solid var(--border);border-radius:7px;padding:5px 10px;}
+.search-row input{border:none;background:transparent;font-family:inherit;
+  font-size:12px;color:var(--text);width:160px;outline:none;}
+
+/* ── 테이블 ── */
+table{width:100%;border-collapse:collapse;}
+thead th{background:#f6f8fc;padding:9px 13px;text-align:left;font-size:11px;
+  font-weight:700;color:var(--sub);letter-spacing:.4px;border-bottom:1px solid var(--border);
+  text-transform:uppercase;white-space:nowrap;}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s;cursor:pointer;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:#f4f7fc;}
+td{padding:10px 13px;font-size:13px;vertical-align:middle;}
+.tid{font-family:Consolas,monospace;font-size:11px;color:var(--blue);font-weight:600;}
+.tname{font-weight:600;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* ── 배지 ── */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:5px;
+  font-size:11px;font-weight:700;white-space:nowrap;}
+.b-wait{background:var(--orange-bg);color:var(--orange);}
+.b-prog{background:var(--blue-bg);color:var(--blue);}
+.b-done{background:var(--green-bg);color:var(--green);}
+.b-etc{background:#f0f0f0;color:#666;}
+.type-badge{display:inline-flex;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;background:var(--blue-bg);color:var(--blue);}
+
+/* ── 모달 ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(10,20,40,.5);
+  z-index:1000;align-items:center;justify-content:center;}
+.overlay.on{display:flex;}
+.modal{background:#fff;border-radius:13px;max-width:96vw;max-height:92vh;
+  overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.22);}
+.modal-hd{padding:20px 24px 14px;border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;}
+.modal-ttl{font-size:15px;font-weight:700;color:var(--navy);}
+.modal-x{margin-left:auto;background:none;border:none;font-size:19px;
+  cursor:pointer;color:var(--sub);border-radius:5px;padding:2px 5px;}
+.modal-x:hover{background:var(--bg);}
+.modal-bd{padding:20px 24px;}
+.modal-ft{padding:13px 24px;border-top:1px solid var(--border);
+  display:flex;gap:8px;justify-content:flex-end;align-items:center;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.sel{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:8px;
+  font-family:inherit;font-size:13px;color:var(--text);background:#fff;outline:none;}
+.sel:focus{border-color:var(--navy3);}
+.ta{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:8px;
+  font-family:inherit;font-size:13px;color:var(--text);resize:vertical;min-height:100px;
+  outline:none;}
+.ta:focus{border-color:var(--navy3);}
+
+/* ── 상세 정보 ── */
+.det-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.det-item{background:var(--bg);border-radius:7px;padding:9px 12px;}
+.det-lbl{font-size:10px;color:var(--sub);font-weight:700;letter-spacing:.4px;
+  text-transform:uppercase;margin-bottom:3px;}
+.det-val{font-size:13px;font-weight:500;color:var(--text);}
+.content-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;
+  padding:12px 14px;font-size:13px;line-height:1.7;white-space:pre-wrap;margin-bottom:14px;}
+.timeline{border-left:2px solid var(--border);padding-left:16px;}
+.tl-dot{position:relative;}
+.tl-dot::before{content:'';position:absolute;left:-22px;top:5px;width:8px;height:8px;
+  border-radius:50%;background:var(--navy2);border:2px solid #fff;
+  box-shadow:0 0 0 1px var(--border);}
+.tl-date{font-size:11px;color:var(--muted);}
+.tl-text{font-size:13px;margin:2px 0;}
+.tl-author{font-size:11px;color:var(--sub);}
+.mb12{margin-bottom:12px;}
+
+/* ── 인포그래픽 ── */
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.chart-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:18px;box-shadow:var(--shadow);}
+.chart-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:14px;}
+.bar-row{display:flex;align-items:center;gap:9px;margin-bottom:8px;}
+.bar-label{font-size:12px;color:var(--sub);width:80px;flex-shrink:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bar-track{flex:1;height:10px;background:var(--bg);border-radius:5px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:5px;transition:width .4s ease;}
+.bar-count{font-size:12px;font-weight:700;color:var(--navy);width:24px;text-align:right;}
+.donut-wrap{display:flex;align-items:center;gap:20px;justify-content:center;}
+.donut-legend{display:flex;flex-direction:column;gap:7px;}
+.legend-item{display:flex;align-items:center;gap:7px;font-size:12px;}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.legend-label{color:var(--sub);}
+.legend-val{font-weight:700;color:var(--navy);margin-left:auto;min-width:20px;}
+.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.kpi-box{background:var(--card);border:1px solid var(--border);border-radius:8px;
+  padding:14px 16px;text-align:center;box-shadow:var(--shadow);}
+.kpi-num{font-size:28px;font-weight:700;color:var(--navy);}
+.kpi-lbl{font-size:11px;color:var(--sub);margin-top:3px;}
+
+/* ── 사용자 대시보드 요약카드 ── */
+.summary-list{display:flex;flex-direction:column;gap:9px;}
+.summary-item{display:flex;align-items:center;gap:11px;padding:11px 14px;
+  background:var(--bg);border:1px solid var(--border);border-radius:8px;cursor:pointer;
+  transition:all .15s;}
+.summary-item:hover{border-color:var(--navy3);background:#edf1f9;}
+.summary-icon{width:34px;height:34px;border-radius:7px;display:flex;align-items:center;
+  justify-content:center;font-size:16px;flex-shrink:0;}
+.summary-ttl{font-weight:600;font-size:13px;margin-bottom:2px;}
+.summary-meta{font-size:11px;color:var(--sub);}
+.summary-status{margin-left:auto;}
+
+/* ── 계정 관리 ── */
+.acct-filter{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
+.chip{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;
+  border:1.5px solid var(--border);background:var(--card);color:var(--sub);
+  transition:all .15s;user-select:none;}
+.chip.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+.chip:hover:not(.on){background:#eef2f7;color:var(--navy2);}
+
+/* ── 토스트 ── */
+.toast-wrap{position:fixed;bottom:20px;right:20px;z-index:9999;
+  display:flex;flex-direction:column;gap:7px;}
+.toast{background:var(--navy);color:#fff;padding:11px 17px;border-radius:9px;
+  font-size:13px;font-weight:500;box-shadow:0 4px 18px rgba(0,0,0,.22);
+  display:flex;align-items:center;gap:8px;animation:tin .22s ease;}
+.toast.ok{background:var(--green);}
+.toast.err{background:var(--red);}
+@keyframes tin{from{transform:translateX(50px);opacity:0}to{transform:none;opacity:1}}
+
+/* ── 반응형 ── */
+@media(max-width:900px){
+  .stat-row{grid-template-columns:repeat(2,1fr);}
+  .chart-grid{grid-template-columns:1fr;}
+  .form-row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- 로그인 -->
+<div id="S-login" class="login-screen">
+  <div class="login-card">
+    <div class="login-emblem">
+      <div class="org">🏛 농림수산식품교육문화정보원</div>
+      <h1>IT 서비스 관리시스템</h1>
+      <div class="sub">ITSM · Information Technology Service Management</div>
+    </div>
+    <div class="login-divider"></div>
+    <div class="fg"><label class="lbl">아이디</label>
+      <input class="inp" id="li-id" placeholder="Mail ID 입력" autocomplete="username"></div>
+    <div class="fg"><label class="lbl">비밀번호</label>
+      <input class="inp" id="li-pw" type="password" placeholder="비밀번호 입력" autocomplete="current-password"></div>
+    <button class="btn btn-navy" onclick="doLogin()">로그인</button>
+    <div class="err-msg" id="li-err"></div>
+    <div class="hint">초기 비밀번호: 내선번호 끝 4자리<br><span style="font-size:11px">관리자 문의: IT담당자</span></div>
+  </div>
+</div>
+
+<!-- 비밀번호 강제 변경 -->
+<div id="S-pw" class="pw-screen" style="display:none;">
+  <div class="pw-card">
+    <div style="font-size:36px;margin-bottom:12px;">🔐</div>
+    <h2>비밀번호를 변경해 주세요</h2>
+    <p class="desc">최초 로그인이 확인되었습니다.<br>보안을 위해 새 비밀번호로 변경 후 이용하실 수 있습니다.</p>
+    <div class="fg"><label class="lbl">새 비밀번호</label>
+      <input class="inp" id="pw-new" type="password" placeholder="새 비밀번호" oninput="checkPw()">
+      <div class="pw-checks" id="pw-checks">
+        <span class="pw-check no" id="pc1">8자 이상</span>
+        <span class="pw-check no" id="pc2">영문 포함</span>
+        <span class="pw-check no" id="pc3">숫자 포함</span>
+        <span class="pw-check no" id="pc4">특수문자(!@#$)</span>
+      </div>
+    </div>
+    <div class="fg"><label class="lbl">새 비밀번호 확인</label>
+      <input class="inp" id="pw-new2" type="password" placeholder="새 비밀번호 확인"></div>
+    <div class="err-msg" id="pw-err" style="display:block;"></div>
+    <button class="btn btn-navy" style="margin-top:6px;" onclick="forcePwChange()">변경 완료</button>
+  </div>
+</div>
+
+<!-- 앱 -->
+<div id="S-app" style="display:none;">
+<div class="app">
+
+  <!-- 사이드바 -->
+  <nav class="sidebar">
+    <div class="sb-logo">
+      <div class="mark">ITSM SYSTEM</div>
+      <div class="title" id="sb-title">농정원 IT서비스</div>
+      <span class="role-tag" id="sb-roletag">직원</span>
+    </div>
+    <div class="nav-group" id="nav-user" style="display:none;">
+      <div class="nav-sec-label">메뉴</div>
+      <div class="nav-item" onclick="go('u-dash')"><span class="ic">📊</span>대시보드</div>
+      <div class="nav-item" onclick="go('u-reg')"><span class="ic">✏️</span>ITSM 등록</div>
+      <div class="nav-item" onclick="go('u-list')"><span class="ic">📋</span>ITSM 목록</div>
+    </div>
+    <div class="nav-group" id="nav-admin" style="display:none;">
+      <div class="nav-sec-label">관리자</div>
+      <div class="nav-item" onclick="go('a-dash')"><span class="ic">📊</span>대시보드</div>
+      <div class="nav-item" onclick="go('a-status')">
+        <span class="ic">🎫</span>ITSM 접수현황
+        <span class="nav-badge" id="badge-new">0</span>
+      </div>
+      <div class="nav-item" onclick="go('a-stats')"><span class="ic">📈</span>ITSM 통계분석</div>
+      <div class="nav-item" onclick="go('a-accounts')"><span class="ic">👥</span>계정관리</div>
+    </div>
+    <div class="sb-foot">
+      <div class="user-chip">
+        <div class="user-av" id="sb-av">?</div>
+        <div>
+          <div class="user-name" id="sb-name">-</div>
+          <div class="user-sub" id="sb-dept">-</div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">🚪 로그아웃</button>
+    </div>
+  </nav>
+
+  <!-- 콘텐츠 -->
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-ttl" id="topbar-ttl">-</div>
+        <div class="topbar-sub" id="topbar-sub">-</div>
+      </div>
+      <div class="topbar-right" id="topbar-right"></div>
+    </div>
+    <div class="content">
+
+      <!-- 사용자: 대시보드 -->
+      <div class="page" id="page-u-dash">
+        <div class="stat-row" id="u-stat-row"></div>
+        <div class="panel">
+          <div class="panel-head"><div class="panel-title">📌 내 요청 현황 (최근 10건)</div></div>
+          <div style="padding:14px;" id="u-summary"></div>
+        </div>
+      </div>
+
+      <!-- 사용자: ITSM 등록 -->
+      <div class="page" id="page-u-reg">
+        <div class="panel" style="max-width:660px;">
+          <div class="panel-head"><div class="panel-title">✏️ ITSM 등록</div></div>
+          <div style="padding:20px 22px;">
+            <div class="fg"><label class="lbl">접수일자</label>
+              <input class="inp" id="reg-date" type="date"></div>
+            <div class="fg"><label class="lbl">접수유형</label>
+              <select class="sel" id="reg-type">
+                <option value="">유형 선택</option>
+                <option>비번초기화</option>
+                <option>권한부여</option>
+                <option>시스템오류</option>
+                <option>제안평가</option>
+                <option>기타</option>
+              </select>
+            </div>
+            <div class="fg"><label class="lbl">접수내용</label>
+              <textarea class="ta" id="reg-content" placeholder="요청 내용을 상세히 입력해주세요.&#10;&#10;• 언제부터 발생했나요?&#10;• 어떤 증상인가요?&#10;• 관련 시스템/부서가 있나요?"></textarea>
+            </div>
+            <button class="btn btn-navy" style="width:100%;padding:12px;" onclick="submitITSM()">
+              📨 저장
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 사용자: ITSM 목록 -->
+      <div class="page" id="page-u-list">
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">📋 내 ITSM 목록</div>
+          </div>
+          <table>
+            <thead><tr><th>번호</th><th>접수일자</th><th>접수유형</th><th>접수내용</th><th>상태</th><th>등록일시</th></tr></thead>
+            <tbody id="u-list-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 관리자: 대시보드 -->
+      <div class="page" id="page-a-dash">
+        <div class="stat-row" id="a-stat-row"></div>
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;">
+          <div class="panel">
+            <div class="panel-head"><div class="panel-title">🔴 미처리 접수 현황</div>
+              <div class="panel-right"><button class="btn btn-ghost btn-sm" onclick="go('a-status')">전체 보기</button></div>
+            </div>
+            <table>
+              <thead><tr><th>번호</th><th>접수자</th><th>유형</th><th>내용</th><th>상태</th><th>접수일</th></tr></thead>
+              <tbody id="a-pending-body"></tbody>
+            </table>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><div class="panel-title">📊 유형별 현황</div></div>
+            <div style="padding:14px;" id="a-type-chart"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 관리자: ITSM 접수현황 -->
+      <div class="page" id="page-a-status">
+        <div class="acct-filter" id="status-chips">
+          <span style="font-size:11px;font-weight:700;color:var(--sub);">상태:</span>
+          <div class="chip on" onclick="setStatusFilter('all',this)">전체</div>
+          <div class="chip" onclick="setStatusFilter('대기',this)">처리대기</div>
+          <div class="chip" onclick="setStatusFilter('처리중',this)">처리중</div>
+          <div class="chip" onclick="setStatusFilter('완료',this)">완료</div>
+        </div>
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">ITSM 접수현황</div>
+            <div class="panel-right">
+              <div class="search-row">
+                <span>🔍</span>
+                <input id="status-search" placeholder="이름·내용 검색..." oninput="renderAdminList()">
+              </div>
+            </div>
+          </div>
+          <table>
+            <thead><tr><th>번호</th><th>접수일자</th><th>접수자</th><th>소속</th><th>직급</th><th>유형</th><th>접수내용</th><th>상태</th><th>등록일시</th></tr></thead>
+            <tbody id="a-list-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 관리자: ITSM 통계분석 -->
+      <div class="page" id="page-a-stats">
+        <div class="kpi-row" id="kpi-row"></div>
+        <div class="chart-grid" id="chart-grid"></div>
+      </div>
+
+      <!-- 관리자: 계정관리 -->
+      <div class="page" id="page-a-accounts">
+        <div class="acct-filter">
+          <div class="search-row" style="border-radius:7px;">
+            <span>🔍</span>
+            <input id="acct-search" placeholder="이름·아이디·부서 검색..." oninput="renderAccounts()" style="width:200px;">
+          </div>
+          <button class="btn btn-gold btn-sm" style="margin-left:auto;" onclick="openAddAcct()">+ 계정 추가</button>
+        </div>
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">직원 계정 목록</div>
+            <div class="panel-right" id="acct-count"></div>
+          </div>
+          <table>
+            <thead><tr><th>아이디</th><th>이름</th><th>소속</th><th>직급</th><th>직위</th><th>내선</th><th>비밀번호 상태</th><th>관리</th></tr></thead>
+            <tbody id="acct-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+</div><!-- /S-app -->
+
+<!-- ITSM 상세 모달 -->
+<div class="overlay" id="m-detail">
+  <div class="modal" style="width:620px;">
+    <div class="modal-hd">
+      <div><div style="font-size:11px;color:var(--sub);margin-bottom:2px;" id="d-id"></div>
+        <div class="modal-ttl" id="d-title"></div></div>
+      <button class="modal-x" onclick="closeM('m-detail')">✕</button>
+    </div>
+    <div class="modal-bd">
+      <div class="det-grid" id="d-grid"></div>
+      <div class="lbl" style="margin-bottom:6px;">접수내용</div>
+      <div class="content-box" id="d-content"></div>
+      <div class="lbl" style="margin-bottom:8px;">처리 이력</div>
+      <div class="timeline" id="d-timeline"></div>
+      <div id="admin-action-area" style="display:none;margin-top:16px;">
+        <div class="fg"><label class="lbl">처리 내용 입력</label>
+          <textarea class="ta" id="d-comment" style="min-height:65px;" placeholder="처리 내용, 조치 사항 등..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <div id="admin-status-area" style="display:none;margin-right:auto;display:flex;gap:7px;align-items:center;">
+        <select class="sel" id="d-status-sel" style="width:110px;padding:7px 10px;font-size:12px;">
+          <option value="대기">처리대기</option>
+          <option value="처리중">처리중</option>
+          <option value="완료">완료</option>
+        </select>
+        <button class="btn btn-navy btn-sm" onclick="updateItem()">업데이트</button>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeM('m-detail')">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 계정 추가 모달 -->
+<div class="overlay" id="m-add-acct">
+  <div class="modal" style="width:480px;">
+    <div class="modal-hd"><div class="modal-ttl">👤 계정 추가</div>
+      <button class="modal-x" onclick="closeM('m-add-acct')">✕</button></div>
+    <div class="modal-bd">
+      <div class="form-row">
+        <div class="fg"><label class="lbl">이름 *</label><input class="inp" id="na-name" placeholder="홍길동"></div>
+        <div class="fg"><label class="lbl">아이디(Mail ID) *</label><input class="inp" id="na-id" placeholder="hong"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label class="lbl">소속 *</label><input class="inp" id="na-dept" placeholder="경영지원실"></div>
+        <div class="fg"><label class="lbl">직급</label><input class="inp" id="na-grade" placeholder="6급"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label class="lbl">직위</label><input class="inp" id="na-pos" placeholder="대리"></div>
+        <div class="fg"><label class="lbl">내선번호</label><input class="inp" id="na-ext" placeholder="044-861-XXXX"></div>
+      </div>
+      <div style="background:#f0f4fa;border-radius:8px;padding:10px 13px;font-size:12px;color:var(--sub);margin-top:4px;">
+        🔒 초기 비밀번호: 내선번호 끝 4자리 (없으면 <b>0000</b>)
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost btn-sm" onclick="closeM('m-add-acct')">취소</button>
+      <button class="btn btn-gold btn-sm" onclick="addAcct()">추가</button>
+    </div>
+  </div>
+</div>
+
+<!-- 계정 삭제 확인 모달 -->
+<div class="overlay" id="m-del-acct">
+  <div class="modal" style="width:380px;">
+    <div class="modal-hd"><div class="modal-ttl">🗑 계정 삭제</div>
+      <button class="modal-x" onclick="closeM('m-del-acct')">✕</button></div>
+    <div class="modal-bd">
+      <p style="font-size:13px;line-height:1.7;" id="del-msg"></p>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost btn-sm" onclick="closeM('m-del-acct')">취소</button>
+      <button class="btn btn-danger btn-sm" onclick="confirmDel()">삭제</button>
+    </div>
+  </div>
+</div>
+
+<!-- 비밀번호 초기화 확인 모달 -->
+<div class="overlay" id="m-reset-pw">
+  <div class="modal" style="width:380px;">
+    <div class="modal-hd"><div class="modal-ttl">🔑 비밀번호 초기화</div>
+      <button class="modal-x" onclick="closeM('m-reset-pw')">✕</button></div>
+    <div class="modal-bd">
+      <p style="font-size:13px;line-height:1.7;" id="reset-msg"></p>
+      <div style="background:#fff3e0;border-radius:7px;padding:10px 13px;font-size:12px;color:#8a5000;margin-top:10px;">
+        초기화 후 비밀번호: 내선번호 끝 4자리<br>해당 직원이 다음 로그인 시 변경 요청됩니다.
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost btn-sm" onclick="closeM('m-reset-pw')">취소</button>
+      <button class="btn btn-danger btn-sm" onclick="confirmReset()">초기화</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="tw"></div>
+
+<script>
+const DEFAULT_ACCOUNTS = {
+  "yoondj": {"name": "윤동진", "dept": "원장", "grade": "원장", "position": "원장", "ext": "044-861-8701", "password": "8701", "mustChange": false, "role": "user"},
+  "upright2": {"name": "임시2", "dept": "청렴감사실", "grade": "기타", "position": "-", "ext": "-", "password": "0000", "mustChange": false, "role": "user"},
+  "skunsok": {"name": "송근석", "dept": "청렴감사실", "grade": "2급", "position": "실장", "ext": "044-861-4500", "password": "4500", "mustChange": false, "role": "user"},
+  "tsh3987": {"name": "박상현", "dept": "청렴감사실", "grade": "5급", "position": "과장", "ext": "044-861-8779", "password": "8779", "mustChange": false, "role": "user"},
+  "upright1": {"name": "임시1", "dept": "청렴감사실", "grade": "기타", "position": "-", "ext": "-", "password": "0000", "mustChange": false, "role": "user"},
+  "graymane": {"name": "김백주", "dept": "청렴감사실", "grade": "2급", "position": "부장", "ext": "044-861-8864", "password": "8864", "mustChange": false, "role": "user"},
+  "bonus007": {"name": "김상호", "dept": "AI추진단", "grade": "3급", "position": "부장", "ext": "044-861-8823", "password": "8823", "mustChange": false, "role": "user"},
+  "goatpark": {"name": "박중식", "dept": "AI추진단", "grade": "2급", "position": "단장", "ext": "", "password": "0000", "mustChange": false, "role": "user"},
+  "chris654": {"name": "김종문", "dept": "AI추진단", "grade": "인턴", "position": "인턴", "ext": "-", "password": "0000", "mustChange": false, "role": "user"},
+  "smy007": {"name": "송민영", "dept": "경영기획본부", "grade": "3급", "position": "본부장", "ext": "044-861-8890", "password": "8890", "mustChange": false, "role": "user"},
+  "jslee0817": {"name": "이지선", "dept": "AI추진단", "grade": "나급", "position": "과장", "ext": "044-861-8796", "password": "8796", "mustChange": false, "role": "user"},
+  "jks1130": {"name": "정경선", "dept": "스마트경영실", "grade": "6급", "position": "대리", "ext": "044-861-8715", "password": "8715", "mustChange": false, "role": "user"},
+  "hitop": {"name": "신원상", "dept": "옴부즈만", "grade": "4급", "position": "차장", "ext": "044-861-4524", "password": "4524", "mustChange": false, "role": "user"},
+  "jgyoon": {"name": "윤중근", "dept": "스마트경영실", "grade": "4급", "position": "차장", "ext": "044-861-8713", "password": "8713", "mustChange": false, "role": "user"},
+  "seoyeon13757": {"name": "윤서연", "dept": "스마트경영실", "grade": "-", "position": "실습", "ext": "-", "password": "0000", "mustChange": false, "role": "user"},
+  "maia007": {"name": "최정환", "dept": "스마트경영실", "grade": "4급", "position": "차장", "ext": "044-861-8714", "password": "8714", "mustChange": false, "role": "user"},
+  "rkdwns": {"name": "강준", "dept": "스마트경영실", "grade": "6급", "position": "대리", "ext": "044-861-8768", "password": "8768", "mustChange": false, "role": "user"},
+  "jyyun1": {"name": "윤지영", "dept": "스마트경영실", "grade": "5급", "position": "과장", "ext": "044-861-8712", "password": "8712", "mustChange": false, "role": "user"},
+  "hanazuku1": {"name": "손수일", "dept": "스마트경영실", "grade": "6급", "position": "대리", "ext": "044-861-8741", "password": "8741", "mustChange": false, "role": "user"},
+  "ekhwang": {"name": "황은교", "dept": "스마트경영실", "grade": "5급", "position": "과장", "ext": "044-861-8812", "password": "8812", "mustChange": false, "role": "user"},
+  "alswn8363": {"name": "오민주", "dept": "스마트경영실", "grade": "-", "position": "실습", "ext": "-", "password": "0000", "mustChange": false, "role": "user"},
+  "ahnjj21": {"name": "안중재", "dept": "스마트경영실", "grade": "4급", "position": "실장", "ext": "044-861-8710", "password": "8710", "mustChange": false, "role": "user"},
+  "jinseon827": {"name": "한진선", "dept": "스마트경영실", "grade": "5급", "position": "과장", "ext": "044-861-8716", "password": "8716", "mustChange": false, "role": "user"},
+  "leeko2": {"name": "이강오", "dept": "국제농업실", "grade": "3급", "position": "부장", "ext": "044-861-8791", "password": "8791", "mustChange": false, "role": "user"},
+  "flora614": {"name": "김수연", "dept": "국제농업실", "grade": "6급", "position": "대리", "ext": "044-861-8794", "password": "8794", "mustChange": false, "role": "user"},
+  "jmina": {"name": "전미나", "dept": "인사혁신실", "grade": "5급", "position": "과장", "ext": "044-861-8821", "password": "8821", "mustChange": false, "role": "user"},
+  "sylee0116": {"name": "이승영", "dept": "국제농업실", "grade": "6급", "position": "대리", "ext": "044-861-8812", "password": "8812", "mustChange": false, "role": "user"},
+  "osop": {"name": "신승구", "dept": "국제농업실", "grade": "4급", "position": "차장", "ext": "044-861-8733", "password": "8733", "mustChange": false, "role": "user"},
+  "anmiju": {"name": "안미주", "dept": "인사혁신실", "grade": "4급", "position": "실장", "ext": "044-861-8820", "password": "8820", "mustChange": false, "role": "user"},
+  "jdd05022": {"name": "윤해선", "dept": "인사혁신실", "grade": "5급", "position": "과장", "ext": "044-861-8823", "password": "8823", "mustChange": false, "role": "user"},
+  "diacp": {"name": "송치평", "dept": "인사혁신실", "grade": "6급", "position": "대리", "ext": "044-861-8723", "password": "8723", "mustChange": false, "role": "user"},
+  "yeoni530": {"name": "박소연", "dept": "국제농업실", "grade": "6급", "position": "대리", "ext": "044-861-8782", "password": "8782", "mustChange": false, "role": "user"},
+  "tytesj": {"name": "장선주", "dept": "국제농업실", "grade": "6급", "position": "대리", "ext": "044-861-8799", "password": "8799", "mustChange": false, "role": "user"},
+  "flowesky1216": {"name": "이경미", "dept": "인사혁신실", "grade": "계약직", "position": "과장", "ext": "044-861-8800", "password": "8800", "mustChange": false, "role": "user"},
+  "jlee": {"name": "이재은", "dept": "국제농업실", "grade": "4급", "position": "실장", "ext": "044-861-4511", "password": "4511", "mustChange": false, "role": "user"},
+  "rrrcheri": {"name": "김채리", "dept": "인사혁신실", "grade": "6급", "position": "대리", "ext": "044-861-8824", "password": "8824", "mustChange": false, "role": "user"},
+  "chaejj": {"name": "김채정", "dept": "국제농업실", "grade": "6급", "position": "대리", "ext": "0448618832", "password": "8832", "mustChange": false, "role": "user"},
+  "heej1n2": {"name": "정희진", "dept": "인사혁신실", "grade": "6급", "position": "대리", "ext": "044-861-8825", "password": "8825", "mustChange": false, "role": "user"},
+  "jhyun0713": {"name": "윤주현", "dept": "국제농업실", "grade": "4급", "position": "차장", "ext": "044-861-8795", "password": "8795", "mustChange": false, "role": "user"},
+  "kgn17": {"name": "강구남", "dept": "경영지원실", "grade": "5급", "position": "과장", "ext": "044-861-8831", "password": "8831", "mustChange": false, "role": "user"},
+  "admin": {"name": "관리자", "dept": "정보화팀", "grade": "", "position": "IT담당자", "ext": "", "password": "1q2w3e4r!@", "mustChange": false, "role": "admin"},
+  "gusrudfla99": {"name": "현경림", "dept": "경영지원실", "grade": "인턴", "position": "인턴", "ext": "", "password": "0000", "mustChange": false, "role": "user"},
+  "jhkkk": {"name": "김재훈", "dept": "경영지원실", "grade": "4급", "position": "실장", "ext": "044-861-8780", "password": "8780", "mustChange": false, "role": "user"},
+  "hdb424": {"name": "한다빈", "dept": "경영지원실", "grade": "6급", "position": "대리", "ext": "044-861-8837", "password": "8837", "mustChange": false, "role": "user"},
+  "kmk1034": {"name": "김민규", "dept": "경영지원실", "grade": "6급", "position": "대리", "ext": "044-861-8785", "password": "8785", "mustChange": false, "role": "user"},
+  "careerksseul": {"name": "김슬기", "dept": "경영지원실", "grade": "5급", "position": "과장", "ext": "044-861-8836", "password": "8836", "mustChange": false, "role": "user"},
+  "yoojink000": {"name": "권유진", "dept": "경영지원실", "grade": "인턴", "position": "인턴", "ext": "", "password": "0000", "mustChange": false, "role": "user"},
+  "cobra98": {"name": "김기홍", "dept": "경영지원실", "grade": "2급", "position": "부장", "ext": "044-861-8841", "password": "8841", "mustChange": false, "role": "user"},
+  "wltngus1128": {"name": "지수현", "dept": "경영지원실", "grade": "5급", "position": "과장", "ext": "044-861-8786", "password": "8786", "mustChange": false, "role": "user"},
+  "bbangjea7": {"name": "안영재", "dept": "안전관리실", "grade": "6급", "position": "대리", "ext": "044-861-8759", "password": "8759", "mustChange": false, "role": "user"},
+  "choicer": {"name": "이택선", "dept": "안전관리실", "grade": "3급", "position": "실장", "ext": "044-861-8740", "password": "8740", "mustChange": false, "role": "user"},
+  "ckswhd10": {"name": "김찬종", "dept": "안전관리실", "grade": "다급", "position": "대리", "ext": "044-861-8801", "password": "8801", "mustChange": false, "role": "user"},
+  "ghkdauddo": {"name": "황명애", "dept": "안전관리실", "grade": "시설관리직", "position": "계장", "ext": "044-861-8806", "password": "8806", "mustChange": false, "role": "user"},
+  "lsm3000": {"name": "이승미", "dept": "안전관리실", "grade": "시설관리직", "position": "계장", "ext": "-", "password": "0000", "mustChange": false, "role": "user"},
+  "kiduklee": {"name": "이기덕", "dept": "안전관리실", "grade": "5급", "position": "과장", "ext": "044-861-8841", "password": "8841", "mustChange": false, "role": "user"},
+  "t2461": {"name": "박태용", "dept": "안전관리실", "grade": "시설관리직", "position": "계장", "ext": "-", "password": "0000", "mustChange": false, "role": "user"},
+  "edielee": {"name": "이주영", "dept": "안전관리실", "grade": "4급", "position": "차장", "ext": "044-861-8887", "password": "8887", "mustChange": false, "role": "user"},
+  "ssp747": {"name": "심상박", "dept": "안전관리실", "grade": "시설관리직", "position": "계장", "ext": "", "password": "0000", "mustChange": false, "role": "user"},
+  "dudrlf3381": {"name": "김영길", "dept": "안전관리실", "grade": "6급", "position": "대리", "ext": "044-861-8745", "password": "8745", "mustChange": false, "role": "user"},
+  "kyt6310": {"name": "김영태", "dept": "안전관리실", "grade": "시설관리직", "position": "계장", "ext": "-", "password": "0000", "mustChange": false, "role": "user"},
+  "midbal88": {"name": "황진원", "dept": "농산업인재본부", "grade": "1급", "position": "본부장", "ext": "044-861-8705", "password": "8705", "mustChange": false, "role": "user"},
+  "ms1211": {"name": "조문수", "dept": "인재기획실", "grade": "6급", "position": "대리", "ext": "-", "password": "0000", "mustChange": false, "role": "user"},
+  "limdy0915": {"name": "임다영", "dept": "인재기획실", "grade": "5급", "position": "과장", "ext": "044-861-8817", "password": "8817", "mustChange": false, "role": "user"},
+  "kro3": {"name": "김영식", "dept": "인재기획실", "grade": "2급", "position": "부장", "ext": "044-861-8730", "password": "8730", "mustChange": false, "role": "user"},
+  "chaee": {"name": "채지희", "dept": "인재기획실", "grade": "6급", "position": "대리", "ext": "044-861-8514", "password": "8514", "mustChange": false, "role": "user"},
+  "taeyong79": {"name": "김태용", "dept": "인재기획실", "grade": "4급", "position": "차장", "ext": "044-861-8519", "password": "8519", "mustChange": false, "role": "user"},
+  "irrjnddj": {"name": "김채은", "dept": "인재기획실", "grade": "-", "position": "실습", "ext": "-", "password": "0000", "mustChange": false, "role": "user"},
+  "sbji12": {"name": "지슬비", "dept": "인재기획실", "grade": "6급", "position": "대리", "ext": "044-861-8816", "password": "8816", "mustChange": false, "role": "user"},
+  "cdw0731": {"name": "최동원", "dept": "인재기획실", "grade": "5급", "position": "과장", "ext": "044-861-8717", "password": "8717", "mustChange": false, "role": "user"},
+  "moon0626": {"name": "김학섭", "dept": "인재기획실", "grade": "4급", "position": "실장", "ext": "044-861-8810", "password": "8810", "mustChange": false, "role": "user"},
+  "jsh2733": {"name": "정성희", "dept": "인재기획실", "grade": "5급", "position": "과장", "ext": "044-861-8814", "password": "8814", "mustChange": false, "role": "user"},
+  "sukim23": {"name": "김수", "dept": "인재기획실", "grade": "-", "position": "실습", "ext": "-", "password": "0000", "mustChange": false, "role": "user"},
+  "mjh1541": {"name": "문진화", "dept": "전문인재실", "grade": "4급", "position": "차장", "ext": "044-861-8828", "password": "8828", "mustChange": false, "role": "user"},
+  "tongtongeo": {"name": "홍은숙", "dept": "전문인재실", "grade": "4급", "position": "차장", "ext": "044-861-8824", "password": "8824", "mustChange": false, "role": "user"},
+  "mkwon12": {"name": "문국원", "dept": "전문인재실", "grade": "나급", "position": "과장", "ext": "044-861-8829", "password": "8829", "mustChange": false, "role": "user"},
+  "lsy9405": {"name": "이수연", "dept": "전문인재실", "grade": "6급", "position": "대리", "ext": "044-861-8524", "password": "8524", "mustChange": false, "role": "user"},
+  "sunhott": {"name": "이선호", "dept": "전문인재실", "grade": "4급", "position": "실장", "ext": "044-861-8880", "password": "8880", "mustChange": false, "role": "user"},
+  "youth79": {"name": "태원섭", "dept": "전문인재실", "grade": "4급", "position": "차장", "ext": "044-861-8527", "password": "8527", "mustChange": false, "role": "user"},
+  "heesoo12": {"name": "장희수", "dept": "전문인재실", "grade": "6급", "position": "대리", "ext": "044-861-8822", "password": "8822", "mustChange": false, "role": "user"},
+  "sj1017": {"name": "이승주", "dept": "전문인재실", "grade": "계약직", "position": "대리", "ext": "-", "password": "0000", "mustChange": false, "role": "user"},
+  "grace13": {"name": "박지은", "dept": "전문인재실", "grade": "5급", "position": "과장", "ext": "044-861-8827", "password": "8827", "mustChange": false, "role": "user"},
+  "ljs0693": {"name": "임재서", "dept": "농업인력지원실", "grade": "6급", "position": "대리", "ext": "0448618548", "password": "8548", "mustChange": false, "role": "user"},
+  "kimhj1207": {"name": "김현주", "dept": "농업인력지원실", "grade": "5급", "position": "과장", "ext": "044-861-8546", "password": "8546", "mustChange": false, "role": "user"},
+  "papenburge": {"name": "김원영", "dept": "농업인력지원실", "grade": "-", "position": "실습", "ext": "-", "password": "0000", "mustChange": false, "role": "user"},
+  "suncoin": {"name": "선주화", "dept": "농업인력지원실", "grade": "5급", "position": "과장", "ext": "044-861-8834", "password": "8834", "mustChange": false, "role": "user"},
+  "qkr0133": {"name": "박준성", "dept": "농업인력지원실", "grade": "6급", "position": "대리", "ext": "", "password": "0000", "mustChange": false, "role": "user"},
+  "con1202": {"name": "조은별", "dept": "농업인력지원실", "grade": "5급", "position": "과장", "ext": "044-861-8763", "password": "8763", "mustChange": false, "role": "user"},
+  "shawer018": {"name": "권민정", "dept": "농업인력지원실", "grade": "4급", "position": "실장", "ext": "044-861-8835", "password": "8835", "mustChange": false, "role": "user"},
+  "jjhtwo": {"name": "전준현", "dept": "농업인력지원실", "grade": "4급", "position": "차장", "ext": "044-861-8545", "password": "8545", "mustChange": false, "role": "user"},
+  "mdy6306": {"name": "모다예", "dept": "농업인력지원실", "grade": "6급", "position": "대리", "ext": "044-861-8833", "password": "8833", "mustChange": false, "role": "user"},
+  "sj0126": {"name": "이승주", "dept": "농업인력지원실", "grade": "6급", "position": "대리", "ext": "044-861-8815", "password": "8815", "mustChange": false, "role": "user"},
+  "cwi1004": {"name": "최원일", "dept": "도농상생본부", "grade": "2급", "position": "본부장", "ext": "044-861-8830", "password": "8830", "mustChange": false, "role": "user"},
+  "wkd0963": {"name": "장문영", "dept": "가치확산실", "grade": "5급", "position": "과장", "ext": "044-861-8842", "password": "8842", "mustChange": false, "role": "user"},
+  "jeenie": {"name": "한지원", "dept": "가치확산실", "grade": "6급", "position": "대리", "ext": "044-861-8886", "password": "8886", "mustChange": false, "role": "user"},
+  "subin5227": {"name": "박수빈", "dept": "가치확산실", "grade": "6급", "position": "대리", "ext": "044-861-8864", "password": "8864", "mustChange": false, "role": "user"},
+  "jsmhunter": {"name": "제수만", "dept": "가치확산실", "grade": "3급", "position": "실장", "ext": "044-861-8860", "password": "8860", "mustChange": false, "role": "user"},
+  "error1220": {"name": "여동욱", "dept": "가치확산실", "grade": "4급", "position": "차장", "ext": "044-861-8882", "password": "8882", "mustChange": false, "role": "user"},
+  "db90": {"name": "서단비", "dept": "가치확산실", "grade": "4급", "position": "차장", "ext": "044-861-8884", "password": "8884", "mustChange": false, "role": "user"},
+  "otion23": {"name": "임희석", "dept": "가치확산실", "grade": "4급", "position": "차장", "ext": "044-861-8897", "password": "8897", "mustChange": false, "role": "user"},
+  "y2kka": {"name": "이득용", "dept": "소비촉진실", "grade": "4급", "position": "실장", "ext": "044-861-8560", "password": "8560", "mustChange": false, "role": "user"},
+  "siyoon": {"name": "윤수이", "dept": "소비촉진실", "grade": "5급", "position": "과장", "ext": "044-861-8863", "password": "8863", "mustChange": false, "role": "user"},
+  "audgh1730": {"name": "이명호", "dept": "소비촉진실", "grade": "나급", "position": "과장", "ext": "044-861-8867", "password": "8867", "mustChange": false, "role": "user"},
+  "tmxk0221": {"name": "노혜인", "dept": "소비촉진실", "grade": "6급", "position": "대리", "ext": "044-861-8724", "password": "8724", "mustChange": false, "role": "user"},
+  "parkgb": {"name": "박기범", "dept": "소비촉진실", "grade": "5급", "position": "과장", "ext": "044-861-8858", "password": "8858", "mustChange": false, "role": "user"},
+  "bds1204": {"name": "백두수", "dept": "소비촉진실", "grade": "5급", "position": "과장", "ext": "044-861-8868", "password": "8868", "mustChange": false, "role": "user"},
+  "somi21": {"name": "박소미", "dept": "소비촉진실", "grade": "5급", "position": "과장", "ext": "044-861-8862", "password": "8862", "mustChange": false, "role": "user"},
+  "nykim": {"name": "김나연", "dept": "소비촉진실", "grade": "6급", "position": "대리", "ext": "044-861-8865", "password": "8865", "mustChange": false, "role": "user"},
+  "joowj": {"name": "주우정", "dept": "반려문화실", "grade": "계약직", "position": "대리", "ext": "044-861-8582", "password": "8582", "mustChange": false, "role": "user"},
+  "leekookhan": {"name": "이국한", "dept": "반려문화실", "grade": "4급", "position": "차장", "ext": "044-861-8893", "password": "8893", "mustChange": false, "role": "user"},
+  "wisdom": {"name": "오지혜", "dept": "반려문화실", "grade": "4급", "position": "차장", "ext": "044-861-8851", "password": "8851", "mustChange": false, "role": "user"},
+  "yekor": {"name": "전예원", "dept": "반려문화실", "grade": "4급", "position": "실장", "ext": "044-861-8890", "password": "8890", "mustChange": false, "role": "user"},
+  "lmh0809": {"name": "이명호", "dept": "반려문화실", "grade": "5급", "position": "과장", "ext": "044-861-8892", "password": "8892", "mustChange": false, "role": "user"},
+  "bdw9510": {"name": "배동욱", "dept": "반려문화실", "grade": "6급", "position": "과장", "ext": "044-861-8898", "password": "8898", "mustChange": false, "role": "user"},
+  "hort695": {"name": "유창희", "dept": "반려문화실", "grade": "6급", "position": "대리", "ext": "044-861-8581", "password": "8581", "mustChange": false, "role": "user"},
+  "sungcm789": {"name": "성창민", "dept": "반려문화실", "grade": "6급", "position": "대리", "ext": "044-861-8573", "password": "8573", "mustChange": false, "role": "user"},
+  "lcs1": {"name": "이철수", "dept": "반려문화실", "grade": "3급", "position": "부장", "ext": "044-861-8854", "password": "8854", "mustChange": false, "role": "user"},
+  "ksh08": {"name": "김서휘", "dept": "반려문화실", "grade": "6급", "position": "대리", "ext": "044-861-8895", "password": "8895", "mustChange": false, "role": "user"},
+  "bedew": {"name": "오세린", "dept": "반려문화실", "grade": "4급", "position": "차장", "ext": "044-861-8891", "password": "8891", "mustChange": false, "role": "user"},
+  "choi130": {"name": "최수빈", "dept": "반려문화실", "grade": "6급", "position": "대리", "ext": "044-861-8889", "password": "8889", "mustChange": false, "role": "user"},
+  "okk023": {"name": "변규리", "dept": "반려문화실", "grade": "6급", "position": "대리", "ext": "044-861-8896", "password": "8896", "mustChange": false, "role": "user"},
+  "magic321": {"name": "김지훈", "dept": "디지털혁신본부", "grade": "3급", "position": "본부장", "ext": "044-861-8798", "password": "8798", "mustChange": false, "role": "user"},
+  "ztsecu": {"name": "최성주", "dept": "정보전략실", "grade": "기타", "position": "기타", "ext": "-", "password": "0000", "mustChange": false, "role": "user"},
+  "bluewink": {"name": "김정환", "dept": "정보전략실", "grade": "기타", "position": "운영실", "ext": "044-861-4533", "password": "4533", "mustChange": false, "role": "user"},
+  "umiyeong": {"name": "유미영", "dept": "정보전략실", "grade": "기타", "position": "운영실", "ext": "044-861-4535", "password": "4535", "mustChange": false, "role": "user"},
+  "wju91": {"name": "원주언", "dept": "정보전략실", "grade": "3급", "position": "부장", "ext": "044-861-8712", "password": "8712", "mustChange": false, "role": "user"},
+  "neosin3311": {"name": "신현준", "dept": "정보전략실", "grade": "기타", "position": "운영실 PM", "ext": "044-861-4531", "password": "4531", "mustChange": false, "role": "user"},
+  "dheom": {"name": "엄대희", "dept": "정보전략실", "grade": "6급", "position": "대리", "ext": "044-861-8754", "password": "8754", "mustChange": false, "role": "user"},
+  "jwkviva": {"name": "정원경", "dept": "정보전략실", "grade": "4급", "position": "차장", "ext": "044-861-8717", "password": "8717", "mustChange": false, "role": "user"},
+  "kim4421": {"name": "김영훈", "dept": "정보전략실", "grade": "기타", "position": "운영실", "ext": "044-861-4532", "password": "4532", "mustChange": false, "role": "user"},
+  "jkj": {"name": "정경진", "dept": "정보전략실", "grade": "5급", "position": "과장", "ext": "044-861-8766", "password": "8766", "mustChange": false, "role": "user"},
+  "shpark2643": {"name": "박성호", "dept": "정보전략실", "grade": "5급", "position": "과장", "ext": "0448618752", "password": "8752", "mustChange": false, "role": "user"},
+  "clgud95": {"name": "김치형", "dept": "정보전략실", "grade": "기타", "position": "운영실", "ext": "044-861-4534", "password": "4534", "mustChange": false, "role": "user"},
+  "gudtjr621": {"name": "주형석", "dept": "정보전략실", "grade": "4급", "position": "차장", "ext": "044-861-8737", "password": "8737", "mustChange": false, "role": "user"},
+  "kyj0529": {"name": "강예진", "dept": "정보전략실", "grade": "5급", "position": "과장", "ext": "044-861-8793", "password": "8793", "mustChange": false, "role": "user"},
+  "ahmin020": {"name": "안홍민", "dept": "정보전략실", "grade": "5급", "position": "과장", "ext": "044-861-8784", "password": "8784", "mustChange": false, "role": "user"},
+  "rightway": {"name": "권혁준", "dept": "정보전략실", "grade": "3급", "position": "실장", "ext": "044-861-8750", "password": "8750", "mustChange": false, "role": "user"},
+  "smso02": {"name": "소성민", "dept": "디지털농정실", "grade": "계약직", "position": "대리", "ext": "044-861-8776", "password": "8776", "mustChange": false, "role": "user"},
+  "choosm": {"name": "추수민", "dept": "디지털농정실", "grade": "6급", "position": "대리", "ext": "044-861-8724", "password": "8724", "mustChange": false, "role": "user"},
+  "kiy0313": {"name": "강인영", "dept": "디지털농정실", "grade": "5급", "position": "과장", "ext": "044-861-8773", "password": "8773", "mustChange": false, "role": "user"},
+  "jmkoo": {"name": "구종민", "dept": "디지털농정실", "grade": "6급", "position": "대리", "ext": "0448618736", "password": "8736", "mustChange": false, "role": "user"},
+  "kimck": {"name": "김창관", "dept": "디지털농정실", "grade": "4급", "position": "차장", "ext": "044-861-8761", "password": "8761", "mustChange": false, "role": "user"},
+  "okim": {"name": "김기주", "dept": "디지털농정실", "grade": "1급", "position": "수석부장", "ext": "044-861-8550", "password": "8550", "mustChange": false, "role": "user"},
+  "jehun83": {"name": "황제훈", "dept": "디지털농정실", "grade": "4급", "position": "차장", "ext": "044-861-8734", "password": "8734", "mustChange": false, "role": "user"},
+  "imalcol": {"name": "이규술", "dept": "디지털농정실", "grade": "2급", "position": "실장", "ext": "044-861-8770", "password": "8770", "mustChange": false, "role": "user"},
+  "emberkim15": {"name": "김민후", "dept": "디지털농정실", "grade": "인턴", "position": "인턴", "ext": "044-861-8764", "password": "8764", "mustChange": false, "role": "user"},
+  "yram0101": {"name": "서예람", "dept": "디지털농정실", "grade": "5급", "position": "과장", "ext": "044-861-8777", "password": "8777", "mustChange": false, "role": "user"},
+  "jq12": {"name": "김우진", "dept": "디지털농정실", "grade": "4급", "position": "차장", "ext": "044-861-8761", "password": "8761", "mustChange": false, "role": "user"},
+  "som243": {"name": "박소영", "dept": "디지털농정실", "grade": "5급", "position": "과장", "ext": "044-861-8772", "password": "8772", "mustChange": false, "role": "user"},
+  "uauahai": {"name": "심보현", "dept": "스마트농업실", "grade": "나급", "position": "과장", "ext": "044-861-8783", "password": "8783", "mustChange": false, "role": "user"},
+  "lya2410": {"name": "이윤아", "dept": "스마트농업실", "grade": "6급", "position": "대리", "ext": "044-861-8870", "password": "8870", "mustChange": false, "role": "user"},
+  "hlchoi": {"name": "최혜림", "dept": "스마트농업실", "grade": "5급", "position": "과장", "ext": "044-861-8742", "password": "8742", "mustChange": false, "role": "user"},
+  "nhoh04": {"name": "오나현", "dept": "스마트농업실", "grade": "6급", "position": "대리", "ext": "044-861-8751", "password": "8751", "mustChange": false, "role": "user"},
+  "happydime": {"name": "조민욱", "dept": "스마트농업실", "grade": "3급", "position": "부장", "ext": "044-861-8845", "password": "8845", "mustChange": false, "role": "user"},
+  "swkim": {"name": "김수웅", "dept": "스마트농업실", "grade": "4급", "position": "차장", "ext": "044-861-8731", "password": "8731", "mustChange": false, "role": "user"},
+  "jminju": {"name": "정민주", "dept": "스마트농업실", "grade": "6급", "position": "대리", "ext": "0448618774", "password": "8774", "mustChange": false, "role": "user"},
+  "classman": {"name": "양종열", "dept": "스마트농업실", "grade": "3급", "position": "실장", "ext": "044-861-4510", "password": "4510", "mustChange": false, "role": "user"},
+  "junep1212": {"name": "박의준", "dept": "스마트농업실", "grade": "6급", "position": "대리", "ext": "044-861-8771", "password": "8771", "mustChange": false, "role": "user"},
+  "hjh4488": {"name": "황정화", "dept": "스마트농업실", "grade": "6급", "position": "대리", "ext": "044-861-8719", "password": "8719", "mustChange": false, "role": "user"},
+  "forfarmer": {"name": "김성아", "dept": "청년농지원처", "grade": "2급", "position": "처장", "ext": "044-861-8708", "password": "8708", "mustChange": false, "role": "user"},
+  "jwyoo": {"name": "유지원", "dept": "청년농육성실", "grade": "5급", "position": "과장", "ext": "044-861-8847", "password": "8847", "mustChange": false, "role": "user"},
+  "xitera": {"name": "손진호", "dept": "청년농육성실", "grade": "나급", "position": "과장", "ext": "044-861-4512", "password": "4512", "mustChange": false, "role": "user"},
+  "epis007": {"name": "김지호", "dept": "청년농육성실", "grade": "계약직", "position": "대리", "ext": "044-861-8844", "password": "8844", "mustChange": false, "role": "user"},
+  "yeojung": {"name": "김여정", "dept": "청년농육성실", "grade": "4급", "position": "차장", "ext": "044-861-8846", "password": "8846", "mustChange": false, "role": "user"},
+  "wduswn": {"name": "정연주", "dept": "청년농육성실", "grade": "6급", "position": "대리", "ext": "044-861-8848", "password": "8848", "mustChange": false, "role": "user"},
+  "agriunion": {"name": "정명종", "dept": "청년농육성실", "grade": "4급", "position": "차장", "ext": "044-861-8778", "password": "8778", "mustChange": false, "role": "user"},
+  "aaadddhhh": {"name": "안다혜", "dept": "청년농육성실", "grade": "5급", "position": "과장", "ext": "044-861-8849", "password": "8849", "mustChange": false, "role": "user"},
+  "btmto": {"name": "배태명", "dept": "청년농육성실", "grade": "4급", "position": "차장", "ext": "044-861-8885", "password": "8885", "mustChange": false, "role": "user"},
+  "salamander": {"name": "김재욱", "dept": "청년농육성실", "grade": "3급", "position": "실장", "ext": "044-861-8840", "password": "8840", "mustChange": false, "role": "user"},
+  "whtjsqls5744": {"name": "조선빈", "dept": "미래농육성실", "grade": "6급", "position": "대리", "ext": "044-861-8894", "password": "8894", "mustChange": false, "role": "user"},
+  "suna00": {"name": "황선아", "dept": "미래농육성실", "grade": "6급", "position": "대리", "ext": "-", "password": "0000", "mustChange": false, "role": "user"},
+  "smarthj": {"name": "주혜진", "dept": "미래농육성실", "grade": "4급", "position": "차장", "ext": "044-861-8855", "password": "8855", "mustChange": false, "role": "user"},
+  "novelis1": {"name": "이인아", "dept": "미래농육성실", "grade": "4급", "position": "실장", "ext": "02-2058-2851", "password": "2851", "mustChange": false, "role": "user"},
+  "parkilwoo": {"name": "박일우", "dept": "미래농육성실", "grade": "3급", "position": "부장", "ext": "044-861-8551", "password": "8551", "mustChange": false, "role": "user"},
+  "haechan": {"name": "안해찬", "dept": "미래농육성실", "grade": "6급", "position": "대리", "ext": "044-861-8883", "password": "8883", "mustChange": false, "role": "user"},
+  "k2383451": {"name": "김준영", "dept": "귀농귀촌종합센터", "grade": "3급", "position": "센터장", "ext": "044-861-8720", "password": "8720", "mustChange": false, "role": "user"},
+  "s2yaa": {"name": "고세희", "dept": "귀농귀촌기획실", "grade": "5급", "position": "과장", "ext": "044-861-8756", "password": "8756", "mustChange": false, "role": "user"},
+  "kkrhee": {"name": "이경개", "dept": "귀농귀촌기획실", "grade": "2급", "position": "부장", "ext": "044-861-4505", "password": "4505", "mustChange": false, "role": "user"},
+  "feel42": {"name": "김상필", "dept": "귀농귀촌기획실", "grade": "나급", "position": "과장", "ext": "044-861-4506", "password": "4506", "mustChange": false, "role": "user"},
+  "otaku7601": {"name": "이치화", "dept": "귀농귀촌기획실", "grade": "4급", "position": "차장", "ext": "044-861-4502", "password": "4502", "mustChange": false, "role": "user"},
+  "mlkang": {"name": "강미리", "dept": "귀농귀촌기획실", "grade": "5급", "position": "과장", "ext": "044-861-4504", "password": "4504", "mustChange": false, "role": "user"},
+  "ihmjung": {"name": "임정훈", "dept": "귀농귀촌기획실", "grade": "5급", "position": "과장", "ext": "044-861-8722", "password": "8722", "mustChange": false, "role": "user"},
+  "csm621": {"name": "조수민", "dept": "귀농귀촌기획실", "grade": "6급", "position": "대리", "ext": "044-861-8866", "password": "8866", "mustChange": false, "role": "user"},
+  "haejuk": {"name": "우명호", "dept": "귀농귀촌기획실", "grade": "3급", "position": "실장", "ext": "044-861-4501", "password": "4501", "mustChange": false, "role": "user"},
+  "sejin": {"name": "권세진", "dept": "귀농귀촌지원실", "grade": "다급", "position": "대리", "ext": "02-2058-2854", "password": "2854", "mustChange": false, "role": "user"},
+  "zerotwo76": {"name": "황영기", "dept": "귀농귀촌지원실", "grade": "3급", "position": "부장", "ext": "044-861-8850", "password": "8850", "mustChange": false, "role": "user"},
+  "jhlee": {"name": "이주현", "dept": "귀농귀촌지원실", "grade": "5급", "position": "과장", "ext": "02-2058-2855", "password": "2855", "mustChange": false, "role": "user"},
+  "unive78": {"name": "박대학", "dept": "귀농귀촌지원실", "grade": "기타", "position": "기타", "ext": "-", "password": "0000", "mustChange": false, "role": "user"},
+  "solsol2": {"name": "손영미", "dept": "귀농귀촌지원실", "grade": "2급", "position": "실장", "ext": "02-2058-2850", "password": "2850", "mustChange": false, "role": "user"},
+  "mj980912": {"name": "김민지", "dept": "귀농귀촌지원실", "grade": "기타", "position": "기타", "ext": "-", "password": "0000", "mustChange": false, "role": "user"},
+  "custor": {"name": "정윤용", "dept": "귀농귀촌지원실", "grade": "자문역", "position": "자문역", "ext": "02-2058-1668", "password": "1668", "mustChange": false, "role": "user"},
+  "kicho": {"name": "조경익", "dept": "귀농귀촌지원실", "grade": "1급", "position": "수석부장", "ext": "044-861-8704", "password": "8704", "mustChange": false, "role": "user"},
+  "draka": {"name": "김보영", "dept": "귀농귀촌지원실", "grade": "4급", "position": "차장", "ext": "02-2058-2852", "password": "2852", "mustChange": false, "role": "user"},
+  "yjal1": {"name": "윤정아", "dept": "귀농귀촌지원실", "grade": "기타", "position": "기타", "ext": "-", "password": "0000", "mustChange": false, "role": "user"},
+  "rapport25": {"name": "이수진", "dept": "귀농귀촌지원실", "grade": "다급", "position": "대리", "ext": "-", "password": "0000", "mustChange": false, "role": "user"},
+  "shwhdnldnjs4": {"name": "이지선", "dept": "노동조합", "grade": "기타", "position": "노조운영위원", "ext": "-", "password": "0000", "mustChange": false, "role": "user"},
+  "shwhdnldnjs2": {"name": "조선빈", "dept": "노동조합", "grade": "기타", "position": "노조운영위원", "ext": "-", "password": "0000", "mustChange": false, "role": "user"},
+  "shwhdnldnjswkd": {"name": "신원상", "dept": "노동조합", "grade": "기타", "position": "노조위원장", "ext": "-", "password": "0000", "mustChange": false, "role": "user"},
+  "shwhdnldnjs5": {"name": "강미리", "dept": "노동조합", "grade": "기타", "position": "노조운영위원", "ext": "-", "password": "0000", "mustChange": false, "role": "user"},
+  "shwhdnldnjs3": {"name": "안홍민", "dept": "노동조합", "grade": "기타", "position": "노조운영위원", "ext": "-", "password": "0000", "mustChange": false, "role": "user"},
+  "shwhdnldnjs1": {"name": "정성희", "dept": "노동조합", "grade": "기타", "position": "노조수석위원", "ext": "-", "password": "0000", "mustChange": false, "role": "user"}
+};
+
+// ══════════════════════════
+// 상수 / 스토리지 키
+// ══════════════════════════
+const AKEY = 'itsm_accts_v2';
+const DKEY = 'itsm_data_v2';
+const INIT_PW_4 = true; // 내선 4자리 방식
+
+// ══════════════════════════
+// 계정 스토리지
+// ══════════════════════════
+function loadAccts() {
+  try {
+    const raw = localStorage.getItem(AKEY);
+    if (raw) return JSON.parse(raw);
+    // 최초 실행: DEFAULT_ACCOUNTS 저장
+    const copy = JSON.parse(JSON.stringify(DEFAULT_ACCOUNTS));
+    localStorage.setItem(AKEY, JSON.stringify(copy));
+    return copy;
+  } catch(e) { return JSON.parse(JSON.stringify(DEFAULT_ACCOUNTS)); }
+}
+function saveAccts(a) {
+  try { localStorage.setItem(AKEY, JSON.stringify(a)); } catch(e) {}
+}
+
+// ══════════════════════════
+// 데이터 스토리지
+// ══════════════════════════
+let items = [];   // ITSM 등록 목록
+
+function loadData() {
+  try {
+    const d = JSON.parse(localStorage.getItem(DKEY) || '{}');
+    if (d.items) items = d.items;
+  } catch(e) {}
+}
+function saveData() {
+  try { localStorage.setItem(DKEY, JSON.stringify({items})); } catch(e) {}
+}
+
+// ══════════════════════════
+// 전역 상태
+// ══════════════════════════
+let ME = null;
+let currentItemId = null;
+let delTargetId = null;
+let resetTargetId = null;
+let statusFilter = 'all';
+
+// ══════════════════════════
+// 유틸
+// ══════════════════════════
+const ST = {대기:'b-wait', 처리중:'b-prog', 완료:'b-done'};
+function sBadge(s) { return `<span class="badge ${ST[s]||'b-etc'}">${s||'대기'}</span>`; }
+function typeB(t)  { return `<span class="type-badge">${t}</span>`; }
+
+function nowStr() {
+  return new Date().toLocaleString('ko-KR', {hour12:false})
+    .replace(/\.\s/g,'-').replace('.','-').slice(0,16);
+}
+function todayStr() {
+  return new Date().toISOString().slice(0,10);
+}
+
+function toast(msg, type='') {
+  const c = document.getElementById('tw');
+  const t = document.createElement('div');
+  t.className = 'toast ' + (type==='ok'?'ok':type==='err'?'err':'');
+  t.innerHTML = (type==='ok'?'✅ ':type==='err'?'❌ ':'ℹ️ ') + msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+function openM(id)  { document.getElementById(id).classList.add('on'); }
+function closeM(id) { document.getElementById(id).classList.remove('on'); }
+window.addEventListener('click', e => {
+  document.querySelectorAll('.overlay').forEach(o => { if(e.target===o) o.classList.remove('on'); });
+});
+
+// ══════════════════════════
+// 비밀번호 강도 체크
+// ══════════════════════════
+function isStrong(pw) {
+  return pw.length>=8 && /[a-zA-Z]/.test(pw) && /[0-9]/.test(pw) && /[!@#$%^&*]/.test(pw);
+}
+function checkPw() {
+  const pw = document.getElementById('pw-new').value;
+  const set = (id,ok) => {
+    const el = document.getElementById(id);
+    el.className = 'pw-check ' + (ok?'ok':'no');
+  };
+  set('pc1', pw.length>=8);
+  set('pc2', /[a-zA-Z]/.test(pw));
+  set('pc3', /[0-9]/.test(pw));
+  set('pc4', /[!@#$%^&*]/.test(pw));
+}
+
+// ══════════════════════════
+// 로그인
+// ══════════════════════════
+document.getElementById('li-id').addEventListener('keydown', e => {
+  if(e.key==='Enter') document.getElementById('li-pw').focus();
+});
+document.getElementById('li-pw').addEventListener('keydown', e => {
+  if(e.key==='Enter') doLogin();
+});
+
+function doLogin() {
+  const id  = document.getElementById('li-id').value.trim();
+  const pw  = document.getElementById('li-pw').value;
+  const err = document.getElementById('li-err');
+  if(!id||!pw) { err.textContent='아이디와 비밀번호를 입력해주세요.'; return; }
+
+  const accs = loadAccts();
+  const acc  = accs[id];
+  if(!acc || acc.password !== pw) {
+    err.textContent='아이디 또는 비밀번호가 올바르지 않습니다.';
+    document.getElementById('li-pw').value = '';
+    return;
+  }
+  err.textContent = '';
+  ME = { username:id, ...acc };
+  loadData();
+
+  if(acc.mustChange) {
+    show('S-pw');
+    document.getElementById('pw-new').value = '';
+    document.getElementById('pw-new2').value = '';
+    document.getElementById('pw-err').textContent = '';
+    ['pc1','pc2','pc3','pc4'].forEach(id => {
+      document.getElementById(id).className = 'pw-check no';
+    });
+    return;
+  }
+  initApp();
+}
+
+function show(id) {
+  ['S-login','S-pw','S-app'].forEach(s => {
+    document.getElementById(s).style.display = (s===id) ? '' : 'none';
+  });
+}
+
+// ══════════════════════════
+// 비밀번호 강제 변경
+// ══════════════════════════
+function forcePwChange() {
+  const pw1 = document.getElementById('pw-new').value;
+  const pw2 = document.getElementById('pw-new2').value;
+  const err = document.getElementById('pw-err');
+  if(!pw1) { err.textContent='새 비밀번호를 입력해주세요.'; return; }
+  if(!isStrong(pw1)) { err.textContent='조건을 모두 충족하는 비밀번호를 입력해주세요.'; return; }
+  if(pw1 !== pw2)    { err.textContent='비밀번호가 일치하지 않습니다.'; return; }
+
+  const accs = loadAccts();
+  accs[ME.username].password   = pw1;
+  accs[ME.username].mustChange = false;
+  saveAccts(accs);
+  ME.password   = pw1;
+  ME.mustChange = false;
+  toast('비밀번호가 변경되었습니다.', 'ok');
+  initApp();
+}
+
+// ══════════════════════════
+// 앱 초기화
+// ══════════════════════════
+function initApp() {
+  show('S-app');
+  const isAdmin = ME.role === 'admin';
+  document.getElementById('sb-title').textContent = isAdmin ? 'ITSM 관리자' : 'IT 요청 시스템';
+  const rTag = document.getElementById('sb-roletag');
+  rTag.className = 'role-tag ' + (isAdmin ? 'role-admin' : 'role-user');
+  rTag.textContent = isAdmin ? '관리자' : '직원';
+  document.getElementById('sb-av').textContent   = ME.name.charAt(0);
+  document.getElementById('sb-name').textContent = ME.name;
+  document.getElementById('sb-dept').textContent = `${ME.dept||''} ${ME.grade||''} ${ME.position||''}`.trim();
+  document.getElementById('nav-user').style.display  = isAdmin ? 'none' : '';
+  document.getElementById('nav-admin').style.display = isAdmin ? '' : 'none';
+
+  if(isAdmin) go('a-dash');
+  else        go('u-dash');
+}
+
+function doLogout() {
+  ME = null;
+  show('S-login');
+  document.getElementById('li-id').value = '';
+  document.getElementById('li-pw').value = '';
+}
+
+// ══════════════════════════
+// 네비게이션
+// ══════════════════════════
+const PAGE_META = {
+  'u-dash':     ['대시보드',      '나의 ITSM 요청 현황'],
+  'u-reg':      ['ITSM 등록',     '신규 IT 서비스 요청 접수'],
+  'u-list':     ['ITSM 목록',     '등록한 요청 목록 조회'],
+  'a-dash':     ['대시보드',      '전체 ITSM 접수 현황판'],
+  'a-status':   ['ITSM 접수현황', '전체 접수 목록 조회 및 관리'],
+  'a-stats':    ['ITSM 통계분석', '접수 데이터 인포그래픽 분석'],
+  'a-accounts': ['계정관리',      '직원 계정 추가·수정·삭제'],
+};
+
+function go(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('on'));
+  document.getElementById('page-'+name)?.classList.add('on');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if(n.getAttribute('onclick')?.includes("'"+name+"'")) n.classList.add('on');
+  });
+  const [t,s] = PAGE_META[name] || [name,''];
+  document.getElementById('topbar-ttl').textContent = t;
+  document.getElementById('topbar-sub').textContent = s;
+  document.getElementById('topbar-right').innerHTML = '';
+
+  if(name==='u-dash')     renderUserDash();
+  if(name==='u-reg')      initReg();
+  if(name==='u-list')     renderUserList();
+  if(name==='a-dash')     renderAdminDash();
+  if(name==='a-status')   renderAdminList();
+  if(name==='a-stats')    renderStats();
+  if(name==='a-accounts') renderAccounts();
+}
+
+// ══════════════════════════
+// 사용자: 대시보드
+// ══════════════════════════
+function renderUserDash() {
+  const mine = items.filter(i => i.uid === ME.username);
+  const wait = mine.filter(i => i.status==='대기').length;
+  const prog = mine.filter(i => i.status==='처리중').length;
+  const done = mine.filter(i => i.status==='완료').length;
+
+  document.getElementById('u-stat-row').innerHTML = `
+    <div class="stat-box c2"><div class="stat-lbl">처리대기</div>
+      <div class="stat-val">${wait}</div><div class="stat-detail">신규 접수 건</div></div>
+    <div class="stat-box c3"><div class="stat-lbl">처리 중</div>
+      <div class="stat-val">${prog}</div><div class="stat-detail">진행 중인 요청</div></div>
+    <div class="stat-box c4"><div class="stat-lbl">완료</div>
+      <div class="stat-val">${done}</div><div class="stat-detail">처리 완료 건</div></div>
+    <div class="stat-box c1"><div class="stat-lbl">전체</div>
+      <div class="stat-val">${mine.length}</div><div class="stat-detail">총 요청 건수</div></div>
+  `;
+
+  const recent = mine.slice(0, 10);
+  const el = document.getElementById('u-summary');
+  if(!recent.length) {
+    el.innerHTML = `<div style="text-align:center;padding:30px;color:var(--muted);">
+      등록된 요청이 없습니다.<br><br>
+      <button class="btn btn-gold" onclick="go('u-reg')">+ ITSM 등록하기</button></div>`;
+    return;
+  }
+  const icons = {대기:'🟠',처리중:'🔵',완료:'🟢'};
+  const bgs   = {대기:'#fff0e6',처리중:'#e3f0fb',완료:'#e6f4ea'};
+  el.innerHTML = `<div class="summary-list">` +
+    recent.map(i => `
+      <div class="summary-item" onclick="openDetail('${i.id}')">
+        <div class="summary-icon" style="background:${bgs[i.status]||'#f0f0f0'};">${icons[i.status]||'⚪'}</div>
+        <div>
+          <div class="summary-ttl">${i.type} · ${i.date}</div>
+          <div class="summary-meta">${i.content.slice(0,40)}${i.content.length>40?'…':''}</div>
+        </div>
+        <div class="summary-status">${sBadge(i.status)}</div>
+      </div>`).join('') + `</div>`;
+}
+
+// ══════════════════════════
+// 사용자: ITSM 등록
+// ══════════════════════════
+function initReg() {
+  document.getElementById('reg-date').value = todayStr();
+  document.getElementById('reg-type').value = '';
+  document.getElementById('reg-content').value = '';
+}
+
+function submitITSM() {
+  const date    = document.getElementById('reg-date').value;
+  const type    = document.getElementById('reg-type').value;
+  const content = document.getElementById('reg-content').value.trim();
+  if(!date)    { toast('접수일자를 입력해주세요.','err'); return; }
+  if(!type)    { toast('접수유형을 선택해주세요.','err'); return; }
+  if(!content) { toast('접수내용을 입력해주세요.','err'); return; }
+
+  const item = {
+    id:      `ITSM-${new Date().getFullYear()}-${String(items.length+1).padStart(4,'0')}`,
+    uid:     ME.username,
+    name:    ME.name,
+    dept:    ME.dept  || '',
+    grade:   ME.grade || '',
+    position:ME.position || '',
+    date, type, content,
+    status:  '대기',
+    reg_at:  nowStr(),
+    history: [{ at:nowStr(), text:'접수 등록', author:ME.name }]
+  };
+  items.unshift(item);
+  saveData();
+  updateBadge();
+  toast(`${item.id} 등록 완료!`, 'ok');
+  go('u-list');
+}
+
+// ══════════════════════════
+// 사용자: ITSM 목록
+// ══════════════════════════
+function renderUserList() {
+  const mine = items.filter(i => i.uid === ME.username);
+  const body = document.getElementById('u-list-body');
+  body.innerHTML = mine.length
+    ? mine.map(i => `
+        <tr onclick="openDetail('${i.id}')">
+          <td class="tid">${i.id}</td>
+          <td>${i.date}</td>
+          <td>${typeB(i.type)}</td>
+          <td class="tname">${i.content.slice(0,30)}${i.content.length>30?'…':''}</td>
+          <td>${sBadge(i.status)}</td>
+          <td style="color:var(--muted);font-size:12px;">${i.reg_at}</td>
+        </tr>`).join('')
+    : '<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--muted);">등록된 항목이 없습니다.</td></tr>';
+}
+
+// ══════════════════════════
+// 관리자: 대시보드
+// ══════════════════════════
+function renderAdminDash() {
+  const total = items.length;
+  const wait  = items.filter(i => i.status==='대기').length;
+  const prog  = items.filter(i => i.status==='처리중').length;
+  const done  = items.filter(i => i.status==='완료').length;
+  updateBadge();
+
+  document.getElementById('a-stat-row').innerHTML = `
+    <div class="stat-box c1"><div class="stat-lbl">전체 접수</div>
+      <div class="stat-val">${total}</div><div class="stat-detail">누적 접수 건수</div></div>
+    <div class="stat-box c2"><div class="stat-lbl">처리대기</div>
+      <div class="stat-val">${wait}</div><div class="stat-detail">신규 미처리 건</div></div>
+    <div class="stat-box c3"><div class="stat-lbl">처리 중</div>
+      <div class="stat-val">${prog}</div><div class="stat-detail">진행중인 건</div></div>
+    <div class="stat-box c4"><div class="stat-lbl">완료</div>
+      <div class="stat-val">${done}</div><div class="stat-detail">처리 완료 건</div></div>
+  `;
+
+  // 미처리 목록 (대기+처리중 최근 5건)
+  const pending = items.filter(i => i.status==='대기'||i.status==='처리중').slice(0,5);
+  document.getElementById('a-pending-body').innerHTML = pending.length
+    ? pending.map(i => `
+        <tr onclick="openDetail('${i.id}')">
+          <td class="tid">${i.id}</td>
+          <td>${i.name}</td>
+          <td>${typeB(i.type)}</td>
+          <td class="tname">${i.content.slice(0,25)}…</td>
+          <td>${sBadge(i.status)}</td>
+          <td>${i.date}</td>
+        </tr>`).join('')
+    : '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--muted);">미처리 건 없음 🎉</td></tr>';
+
+  // 유형별 차트
+  const types = {};
+  items.forEach(i => { types[i.type] = (types[i.type]||0)+1; });
+  const colors = ['#0f2744','#1a5c8a','#c8a951','#2d7d46','#c05000'];
+  const maxV = Math.max(...Object.values(types), 1);
+  document.getElementById('a-type-chart').innerHTML =
+    Object.entries(types).map(([k,v],idx) => `
+      <div class="bar-row">
+        <div class="bar-label">${k}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${v/maxV*100}%;background:${colors[idx%colors.length]};"></div></div>
+        <div class="bar-count">${v}</div>
+      </div>`).join('') || '<div style="color:var(--muted);font-size:13px;padding:8px;">데이터 없음</div>';
+}
+
+// ══════════════════════════
+// 관리자: 접수현황
+// ══════════════════════════
+function setStatusFilter(s, el) {
+  statusFilter = s;
+  document.querySelectorAll('#status-chips .chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  renderAdminList();
+}
+
+function renderAdminList() {
+  let list = [...items].sort((a,b) => b.reg_at.localeCompare(a.reg_at));
+  if(statusFilter !== 'all') list = list.filter(i => i.status === statusFilter);
+  const q = (document.getElementById('status-search')?.value||'').toLowerCase();
+  if(q) list = list.filter(i =>
+    i.name.toLowerCase().includes(q) ||
+    i.content.toLowerCase().includes(q) ||
+    i.dept.toLowerCase().includes(q) ||
+    i.id.toLowerCase().includes(q)
+  );
+  const body = document.getElementById('a-list-body');
+  body.innerHTML = list.length
+    ? list.map(i => `
+        <tr onclick="openDetail('${i.id}')">
+          <td class="tid">${i.id}</td>
+          <td>${i.date}</td>
+          <td><b>${i.name}</b></td>
+          <td style="color:var(--sub);font-size:12px;">${i.dept}</td>
+          <td style="color:var(--sub);font-size:12px;">${i.grade}</td>
+          <td>${typeB(i.type)}</td>
+          <td class="tname">${i.content.slice(0,30)}${i.content.length>30?'…':''}</td>
+          <td>${sBadge(i.status)}</td>
+          <td style="color:var(--muted);font-size:12px;">${i.reg_at}</td>
+        </tr>`).join('')
+    : '<tr><td colspan="9" style="text-align:center;padding:28px;color:var(--muted);">해당 조건의 항목이 없습니다.</td></tr>';
+}
+
+// ══════════════════════════
+// 관리자: 통계분석
+// ══════════════════════════
+function renderStats() {
+  const total = items.length;
+  const done  = items.filter(i=>i.status==='완료').length;
+  const rate  = total ? Math.round(done/total*100) : 0;
+
+  document.getElementById('kpi-row').innerHTML = `
+    <div class="kpi-box"><div class="kpi-num">${total}</div><div class="kpi-lbl">총 접수 건수</div></div>
+    <div class="kpi-box"><div class="kpi-num" style="color:var(--green);">${done}</div><div class="kpi-lbl">처리 완료 건수</div></div>
+    <div class="kpi-box"><div class="kpi-num" style="color:var(--blue);">${rate}%</div><div class="kpi-lbl">처리 완료율</div></div>
+  `;
+
+  // 통계 데이터 집계
+  const byType  = {}, byDept = {}, byGrade = {}, byStatus = {};
+  items.forEach(i => {
+    byType[i.type]       = (byType[i.type]||0)+1;
+    byDept[i.dept||'미상'] = (byDept[i.dept||'미상']||0)+1;
+    byGrade[i.grade||'미상']=(byGrade[i.grade||'미상']||0)+1;
+    byStatus[i.status]   = (byStatus[i.status]||0)+1;
+  });
+
+  const palettes = {
+    a:['#0f2744','#1a3a5c','#2a5080','#3d6fa0','#5a8fc0'],
+    b:['#c8a951','#e8c96a','#2d7d46','#4aab68','#1a5c8a'],
+    c:['#c05000','#e07b00','#a02020','#2d7d46','#1a5c8a'],
+  };
+
+  function barChart(title, data, pal) {
+    const entries = Object.entries(data).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    const maxV = Math.max(...entries.map(e=>e[1]),1);
+    return `<div class="chart-box">
+      <div class="chart-title">${title}</div>
+      ${entries.map(([k,v],i)=>`
+        <div class="bar-row">
+          <div class="bar-label" title="${k}">${k}</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${v/maxV*100}%;background:${pal[i%pal.length]};"></div></div>
+          <div class="bar-count">${v}</div>
+        </div>`).join('')||'<div style="color:var(--muted);font-size:13px;">데이터 없음</div>'}
+    </div>`;
+  }
+
+  function donutChart(title, data) {
+    const entries = Object.entries(data);
+    const total   = entries.reduce((s,[,v])=>s+v,0)||1;
+    const colors  = ['#0f2744','#c8a951','#2d7d46','#1a5c8a','#c05000'];
+    let offset = 0;
+    const segments = entries.map(([k,v],i) => {
+      const pct = v/total*100;
+      const seg = { k, v, pct, color:colors[i%colors.length], offset };
+      offset += pct;
+      return seg;
+    });
+    const r=40, cx=60, cy=60, circ=2*Math.PI*r;
+    const paths = segments.map(s =>
+      `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.color}"
+        stroke-width="20" stroke-dasharray="${s.pct/100*circ} ${circ}"
+        stroke-dashoffset="${-s.offset/100*circ}" transform="rotate(-90 ${cx} ${cy})"/>`
+    ).join('');
+    return `<div class="chart-box">
+      <div class="chart-title">${title}</div>
+      <div class="donut-wrap">
+        <svg width="120" height="120" viewBox="0 0 120 120">${paths}</svg>
+        <div class="donut-legend">
+          ${segments.map(s=>`
+            <div class="legend-item">
+              <span class="legend-dot" style="background:${s.color};"></span>
+              <span class="legend-label">${s.k}</span>
+              <span class="legend-val">${s.v}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('chart-grid').innerHTML =
+    barChart('📁 소속별 접수 현황', byDept, palettes.a) +
+    donutChart('🎫 유형별 비율', byType) +
+    barChart('🏷 직급별 접수 현황', byGrade, palettes.b) +
+    donutChart('📌 처리 상태 비율', byStatus);
+}
+
+// ══════════════════════════
+// ITSM 상세
+// ══════════════════════════
+function openDetail(id) {
+  const item = items.find(i => i.id === id);
+  if(!item) return;
+  currentItemId = id;
+  document.getElementById('d-id').textContent    = item.id;
+  document.getElementById('d-title').textContent = `${item.type} — ${item.date}`;
+  document.getElementById('d-content').textContent = item.content;
+  document.getElementById('d-grid').innerHTML = `
+    <div class="det-item"><div class="det-lbl">상태</div><div class="det-val">${sBadge(item.status)}</div></div>
+    <div class="det-item"><div class="det-lbl">접수유형</div><div class="det-val">${typeB(item.type)}</div></div>
+    <div class="det-item"><div class="det-lbl">접수일자</div><div class="det-val">${item.date}</div></div>
+    <div class="det-item"><div class="det-lbl">요청자</div><div class="det-val">${item.name}</div></div>
+    <div class="det-item"><div class="det-lbl">소속</div><div class="det-val">${item.dept||'-'}</div></div>
+    <div class="det-item"><div class="det-lbl">등록일시</div><div class="det-val">${item.reg_at}</div></div>
+  `;
+  document.getElementById('d-timeline').innerHTML =
+    (item.history||[]).map(h=>`
+      <div class="tl-dot mb12">
+        <div class="tl-date">${h.at}</div>
+        <div class="tl-text">${h.text}</div>
+        <div class="tl-author">— ${h.author}</div>
+      </div>`).join('') || '<div style="color:var(--muted);font-size:13px;">이력 없음</div>';
+
+  const isAdmin = ME.role==='admin';
+  document.getElementById('admin-action-area').style.display = isAdmin?'block':'none';
+  document.getElementById('admin-status-area').style.display = isAdmin?'flex':'none';
+  if(isAdmin) {
+    document.getElementById('d-status-sel').value = item.status;
+    document.getElementById('d-comment').value = '';
+  }
+  openM('m-detail');
+}
+
+function updateItem() {
+  const item = items.find(i => i.id === currentItemId);
+  if(!item) return;
+  const newSt  = document.getElementById('d-status-sel').value;
+  const comment = document.getElementById('d-comment').value.trim();
+  const n = nowStr();
+  if(!item.history) item.history = [];
+  if(newSt !== item.status) {
+    item.history.push({ at:n, text:`상태 변경: ${item.status} → ${newSt}`, author:ME.name });
+    item.status = newSt;
+  }
+  if(comment) item.history.push({ at:n, text:comment, author:ME.name });
+  saveData();
+  updateBadge();
+  toast('업데이트되었습니다.', 'ok');
+  closeM('m-detail');
+  if(document.getElementById('page-a-status').classList.contains('on')) renderAdminList();
+  if(document.getElementById('page-a-dash').classList.contains('on'))   renderAdminDash();
+}
+
+// ══════════════════════════
+// 계정 관리
+// ══════════════════════════
+function renderAccounts() {
+  const accs   = loadAccts();
+  const q      = (document.getElementById('acct-search')?.value||'').toLowerCase();
+  const entries = Object.entries(accs).filter(([id,a]) =>
+    !q || id.includes(q) || a.name.toLowerCase().includes(q) || (a.dept||'').toLowerCase().includes(q)
+  );
+  document.getElementById('acct-count').innerHTML =
+    `<span style="font-size:12px;color:var(--sub);">총 ${entries.length}명</span>`;
+  document.getElementById('acct-body').innerHTML = entries.map(([id,a]) => `
+    <tr>
+      <td class="tid">${id}</td>
+      <td><b>${a.name}</b></td>
+      <td style="font-size:12px;color:var(--sub);">${a.dept||'-'}</td>
+      <td style="font-size:12px;">${a.grade||'-'}</td>
+      <td style="font-size:12px;">${a.position||'-'}</td>
+      <td style="font-size:12px;color:var(--muted);">${a.ext||'-'}</td>
+      <td>${a.mustChange
+        ? '<span class="badge b-wait">변경 필요</span>'
+        : '<span class="badge b-done">변경 완료</span>'}</td>
+      <td>
+        ${id!=='admin'?`
+          <button class="btn btn-ghost btn-xs" style="margin-right:4px;" onclick="openReset('${id}','${a.name}')">초기화</button>
+          <button class="btn btn-danger btn-xs" onclick="openDel('${id}','${a.name}')">삭제</button>
+        `:'<span style="color:var(--muted);font-size:12px;">-</span>'}
+      </td>
+    </tr>`).join('');
+}
+
+function openAddAcct() {
+  ['na-name','na-id','na-dept','na-grade','na-pos','na-ext'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  openM('m-add-acct');
+}
+function addAcct() {
+  const name = document.getElementById('na-name').value.trim();
+  const id   = document.getElementById('na-id').value.trim();
+  const dept = document.getElementById('na-dept').value.trim();
+  const grade= document.getElementById('na-grade').value.trim();
+  const pos  = document.getElementById('na-pos').value.trim();
+  const ext  = document.getElementById('na-ext').value.trim();
+  if(!name||!id) { toast('이름과 아이디는 필수입니다.','err'); return; }
+  if(!/^[a-zA-Z0-9._]+$/.test(id)) { toast('아이디는 영문·숫자·점·언더바만 사용 가능합니다.','err'); return; }
+  const accs = loadAccts();
+  if(accs[id]) { toast('이미 존재하는 아이디입니다.','err'); return; }
+  const digits = ext.replace(/[^0-9]/g,'');
+  const pw = digits.length>=4 ? digits.slice(-4) : '0000';
+  accs[id] = { name, dept, grade, position:pos, ext, password:pw, mustChange:true, role:'user' };
+  saveAccts(accs);
+  toast(`${name}(${id}) 계정 추가 완료`, 'ok');
+  closeM('m-add-acct');
+  renderAccounts();
+}
+
+let delTarget = null;
+function openDel(id, name) {
+  delTarget = id;
+  document.getElementById('del-msg').textContent = `"${name}(${id})" 계정을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`;
+  openM('m-del-acct');
+}
+function confirmDel() {
+  if(!delTarget) return;
+  const accs = loadAccts();
+  delete accs[delTarget];
+  saveAccts(accs);
+  toast('계정이 삭제되었습니다.', 'ok');
+  closeM('m-del-acct');
+  delTarget = null;
+  renderAccounts();
+}
+
+let resetTarget = null;
+function openReset(id, name) {
+  resetTarget = id;
+  document.getElementById('reset-msg').textContent = `"${name}(${id})" 계정의 비밀번호를 초기화하시겠습니까?`;
+  openM('m-reset-pw');
+}
+function confirmReset() {
+  if(!resetTarget) return;
+  const accs = loadAccts();
+  const a = accs[resetTarget];
+  if(a) {
+    const digits = (a.ext||'').replace(/[^0-9]/g,'');
+    a.password   = digits.length>=4 ? digits.slice(-4) : '0000';
+    a.mustChange = true;
+    saveAccts(accs);
+    toast('비밀번호가 초기화되었습니다.', 'ok');
+  }
+  closeM('m-reset-pw');
+  resetTarget = null;
+  renderAccounts();
+}
+
+function updateBadge() {
+  const cnt = items.filter(i=>i.status==='대기'||i.status==='처리중').length;
+  document.getElementById('badge-new').textContent = cnt;
+}
+
+// 초기 로드 시 login 화면만 표시
+show('S-login');
+</script>
+</body>
+</html>
