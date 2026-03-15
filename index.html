@@ -394,7 +394,7 @@ td{padding:10px 13px;font-size:13px;vertical-align:middle;}
             <div class="panel-title">📋 내 ITSM 목록</div>
           </div>
           <table>
-            <thead><tr><th>번호</th><th>접수일자</th><th>접수유형</th><th>접수내용</th><th>상태</th><th>등록일시</th></tr></thead>
+            <thead><tr><th>번호</th><th>접수일자</th><th>접수유형</th><th>접수내용</th><th>상태</th><th>등록일시</th><th>수정</th></tr></thead>
             <tbody id="u-list-body"></tbody>
           </table>
         </div>
@@ -551,6 +551,42 @@ td{padding:10px 13px;font-size:13px;vertical-align:middle;}
     <div class="modal-ft">
       <button class="btn btn-ghost btn-sm" onclick="closeM('m-del-acct')">취소</button>
       <button class="btn btn-danger btn-sm" onclick="confirmDel()">삭제</button>
+    </div>
+  </div>
+</div>
+
+<!-- ITSM 수정 모달 (사용자용 - 대기 상태만) -->
+<div class="overlay" id="m-edit">
+  <div class="modal" style="width:560px;">
+    <div class="modal-hd">
+      <div>
+        <div style="font-size:11px;color:var(--sub);margin-bottom:2px;" id="edit-id"></div>
+        <div class="modal-ttl">ITSM 수정</div>
+      </div>
+      <button class="modal-x" onclick="closeM('m-edit')">✕</button>
+    </div>
+    <div class="modal-bd">
+      <div class="fg"><label class="lbl">접수일자</label>
+        <input class="inp" id="edit-date" type="date"></div>
+      <div class="fg"><label class="lbl">접수유형</label>
+        <select class="sel" id="edit-type">
+          <option>비번초기화</option>
+          <option>권한부여</option>
+          <option>시스템오류</option>
+          <option>제안평가</option>
+          <option>기타</option>
+        </select>
+      </div>
+      <div class="fg"><label class="lbl">접수내용</label>
+        <textarea class="ta" id="edit-content" style="min-height:120px;"></textarea>
+      </div>
+      <div style="background:#fff3e0;border-radius:7px;padding:9px 13px;font-size:12px;color:#8a5000;">
+        ⚠️ 처리대기 상태일 때만 수정할 수 있습니다. 수정 시 이력에 기록됩니다.
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost btn-sm" onclick="closeM('m-edit')">취소</button>
+      <button class="btn btn-gold btn-sm" onclick="saveEdit()">수정 저장</button>
     </div>
   </div>
 </div>
@@ -1088,15 +1124,21 @@ function renderUserList() {
   const body = document.getElementById('u-list-body');
   body.innerHTML = mine.length
     ? mine.map(i => `
-        <tr onclick="openDetail('${i.id}')">
-          <td class="tid">${i.id}</td>
-          <td>${i.date}</td>
-          <td>${typeB(i.type)}</td>
-          <td class="tname">${i.content.slice(0,30)}${i.content.length>30?'…':''}</td>
-          <td>${sBadge(i.status)}</td>
-          <td style="color:var(--muted);font-size:12px;">${i.reg_at}</td>
+        <tr>
+          <td class="tid" style="cursor:pointer;" onclick="openDetail('${i.id}')">${i.id}</td>
+          <td onclick="openDetail('${i.id}')" style="cursor:pointer;">${i.date}</td>
+          <td onclick="openDetail('${i.id}')" style="cursor:pointer;">${typeB(i.type)}</td>
+          <td class="tname" onclick="openDetail('${i.id}')" style="cursor:pointer;">${i.content.slice(0,30)}${i.content.length>30?'…':''}</td>
+          <td onclick="openDetail('${i.id}')" style="cursor:pointer;">${sBadge(i.status)}</td>
+          <td style="color:var(--muted);font-size:12px;cursor:pointer;" onclick="openDetail('${i.id}')">${i.reg_at}</td>
+          <td onclick="event.stopPropagation()">
+            ${i.status==='대기'
+              ? `<button class="btn btn-ghost btn-xs" onclick="openEdit('${i.id}')">✏️ 수정</button>`
+              : `<span style="color:var(--muted);font-size:11px;">-</span>`
+            }
+          </td>
         </tr>`).join('')
-    : '<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--muted);">등록된 항목이 없습니다.</td></tr>';
+    : '<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--muted);">등록된 항목이 없습니다.</td></tr>';
 }
 
 // ══════════════════════════
@@ -1418,6 +1460,59 @@ function confirmReset() {
   closeM('m-reset-pw');
   resetTarget = null;
   renderAccounts();
+}
+
+// ══════════════════════════
+// 사용자: ITSM 수정 (대기 상태만)
+// ══════════════════════════
+function openEdit(id) {
+  const item = items.find(i => i.id === id);
+  if(!item) return;
+  if(item.status !== '대기') { toast('처리대기 상태인 항목만 수정할 수 있습니다.', 'err'); return; }
+  if(item.uid !== ME.username) { toast('본인이 등록한 항목만 수정할 수 있습니다.', 'err'); return; }
+  document.getElementById('edit-id').textContent   = item.id;
+  document.getElementById('edit-date').value        = item.date;
+  document.getElementById('edit-type').value        = item.type;
+  document.getElementById('edit-content').value     = item.content;
+  currentItemId = id;
+  openM('m-edit');
+}
+
+function saveEdit() {
+  const item = items.find(i => i.id === currentItemId);
+  if(!item) return;
+  if(item.status !== '대기') { toast('이미 처리 중인 항목은 수정할 수 없습니다.', 'err'); closeM('m-edit'); return; }
+
+  const newDate    = document.getElementById('edit-date').value;
+  const newType    = document.getElementById('edit-type').value;
+  const newContent = document.getElementById('edit-content').value.trim();
+
+  if(!newDate)    { toast('접수일자를 입력해주세요.', 'err'); return; }
+  if(!newContent) { toast('접수내용을 입력해주세요.', 'err'); return; }
+
+  // 변경된 항목만 이력 기록
+  const changes = [];
+  if(item.date    !== newDate)    changes.push(`접수일자: ${item.date} → ${newDate}`);
+  if(item.type    !== newType)    changes.push(`접수유형: ${item.type} → ${newType}`);
+  if(item.content !== newContent) changes.push('접수내용 수정');
+
+  item.date    = newDate;
+  item.type    = newType;
+  item.content = newContent;
+
+  if(!item.history) item.history = [];
+  item.history.push({
+    at:     nowStr(),
+    text:   changes.length ? `수정됨 — ${changes.join(', ')}` : '내용 수정',
+    author: ME.name
+  });
+
+  saveData();
+  toast('수정이 저장되었습니다.', 'ok');
+  closeM('m-edit');
+  renderUserList();
+  // 대시보드도 열려 있으면 갱신
+  if(document.getElementById('page-u-dash').classList.contains('on')) renderUserDash();
 }
 
 function updateBadge() {
