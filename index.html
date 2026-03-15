@@ -21,39 +21,67 @@ body{font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-seri
   background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;}
 
 /* ── 로그인 ── */
-.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(135deg,var(--navy) 0%,var(--navy3) 100%);}
-.login-card{background:#fff;border-radius:16px;padding:44px 40px;width:400px;
-  box-shadow:0 24px 64px rgba(0,0,0,.28);}
-.login-emblem{text-align:center;margin-bottom:28px;}
-.login-emblem .org{font-size:11px;color:var(--sub);letter-spacing:2px;font-weight:700;
-  text-transform:uppercase;margin-bottom:8px;}
-.login-emblem h1{font-size:20px;font-weight:700;color:var(--navy);line-height:1.35;}
-.login-emblem .sub{font-size:12px;color:var(--sub);margin-top:5px;}
-.login-divider{height:2px;background:linear-gradient(90deg,var(--gold),transparent);
-  margin:0 0 24px;}
-.lbl{display:block;font-size:11px;font-weight:700;color:var(--sub);
-  letter-spacing:.5px;margin-bottom:5px;text-transform:uppercase;}
-.inp{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:8px;
-  font-family:inherit;font-size:13px;color:var(--text);outline:none;transition:border .15s;
-  background:#fff;}
-.inp:focus{border-color:var(--navy3);}
-.fg{margin-bottom:14px;}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;
-  padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;
-  border:none;font-family:inherit;transition:all .15s;text-decoration:none;}
-.btn-navy{background:var(--navy);color:#fff;width:100%;}
-.btn-navy:hover{background:var(--navy3);}
-.btn-gold{background:var(--gold);color:var(--navy);}
-.btn-gold:hover{opacity:.9;}
-.btn-ghost{background:transparent;color:var(--navy2);border:1.5px solid var(--border);}
-.btn-ghost:hover{background:#eef2f7;}
-.btn-sm{padding:6px 12px;font-size:12px;}
-.btn-xs{padding:4px 9px;font-size:11px;border-radius:6px;}
-.btn-danger{background:var(--red);color:#fff;}
-.err-msg{color:var(--red);font-size:12px;text-align:center;margin-top:8px;min-height:18px;}
-.hint{margin-top:16px;padding-top:14px;border-top:1px solid var(--border);
-  font-size:12px;color:var(--muted);text-align:center;line-height:1.9;}
+/* ── 로그인 ── */
+.login-screen{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(150deg,#0d1f38 0%,#1a3a5c 55%,#0f2744 100%);
+  position:relative;overflow:hidden;
+}
+.login-screen::before{
+  content:'';position:absolute;width:700px;height:700px;border-radius:50%;
+  background:radial-gradient(circle,rgba(200,169,81,.13) 0%,transparent 65%);
+  top:-200px;right:-200px;pointer-events:none;
+}
+.login-screen::after{
+  content:'';position:absolute;width:500px;height:500px;border-radius:50%;
+  background:radial-gradient(circle,rgba(26,90,140,.35) 0%,transparent 70%);
+  bottom:-150px;left:-150px;pointer-events:none;
+}
+.login-card{
+  position:relative;z-index:1;
+  background:#fff;border-radius:18px;padding:52px 48px;width:440px;
+  box-shadow:0 28px 80px rgba(0,0,0,.35);
+}
+.login-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:4px;border-radius:18px 18px 0 0;
+  background:linear-gradient(90deg,#c8a951,#e8c96a,#c8a951);
+}
+.lf-emblem{margin-bottom:30px;}
+.lf-org{font-size:10px;color:var(--muted);letter-spacing:2px;font-weight:700;
+  text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.lf-org::after{content:'';flex:1;height:1px;background:var(--border);}
+.lf-title{font-size:26px;font-weight:800;color:var(--navy);line-height:1.25;margin-bottom:5px;}
+.lf-sub{font-size:12px;color:var(--sub);line-height:1.5;margin-bottom:32px;}
+.lf-divider{height:1px;background:linear-gradient(90deg,var(--gold) 0%,transparent 100%);margin-bottom:26px;}
+.inp-wrap{position:relative;margin-bottom:14px;}
+.inp-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);
+  font-size:14px;color:var(--muted);pointer-events:none;}
+.inp-new{
+  width:100%;padding:12px 14px 12px 40px;border:1.5px solid var(--border);
+  border-radius:9px;font-family:inherit;font-size:13px;color:var(--text);
+  outline:none;transition:all .2s;background:#fafbfd;
+}
+.inp-new:focus{border-color:var(--navy3);background:#fff;box-shadow:0 0 0 3px rgba(42,80,128,.08);}
+.btn-login{
+  width:100%;padding:13px;
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy3) 100%);
+  color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:700;
+  font-family:inherit;cursor:pointer;transition:all .2s;letter-spacing:.3px;
+  box-shadow:0 4px 16px rgba(15,39,68,.3);margin-top:4px;
+}
+.btn-login:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(15,39,68,.4);}
+.btn-login:active{transform:none;}
+.lf-hint{
+  margin-top:20px;padding-top:16px;border-top:1px solid var(--border);
+  font-size:11px;color:var(--muted);text-align:center;line-height:2;
+}
+.lf-tag{
+  display:inline-block;background:#f0f4fa;color:var(--navy2);
+  font-size:10px;font-weight:700;padding:2px 9px;border-radius:4px;
+  margin-top:4px;letter-spacing:.5px;
+}
+
+
 
 /* ── 비밀번호 강제변경 ── */
 .pw-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;
@@ -263,19 +291,26 @@ td{padding:10px 13px;font-size:13px;vertical-align:middle;}
 <!-- 로그인 -->
 <div id="S-login" class="login-screen">
   <div class="login-card">
-    <div class="login-emblem">
-      <div class="org">🏛 농림수산식품교육문화정보원</div>
-      <h1>IT 서비스 관리시스템</h1>
-      <div class="sub">ITSM · Information Technology Service Management</div>
+    <div class="lf-emblem">
+      <div class="lf-org">🏛 농림수산식품교육문화정보원</div>
+      <div class="lf-title">IT 서비스<br>관리시스템</div>
+      <div class="lf-sub">ITSM · Information Technology Service Management</div>
     </div>
-    <div class="login-divider"></div>
-    <div class="fg"><label class="lbl">아이디</label>
-      <input class="inp" id="li-id" placeholder="Mail ID 입력" autocomplete="username"></div>
-    <div class="fg"><label class="lbl">비밀번호</label>
-      <input class="inp" id="li-pw" type="password" placeholder="비밀번호 입력" autocomplete="current-password"></div>
-    <button class="btn btn-navy" onclick="doLogin()">로그인</button>
+    <div class="lf-divider"></div>
+    <div class="inp-wrap">
+      <span class="inp-icon">👤</span>
+      <input class="inp-new" id="li-id" placeholder="Mail ID 입력" autocomplete="username">
+    </div>
+    <div class="inp-wrap">
+      <span class="inp-icon">🔒</span>
+      <input class="inp-new" id="li-pw" type="password" placeholder="비밀번호 입력" autocomplete="current-password">
+    </div>
+    <button class="btn-login" onclick="doLogin()">로그인</button>
     <div class="err-msg" id="li-err"></div>
-    <div class="hint">초기 비밀번호: 내선번호 끝 4자리<br><span style="font-size:11px">관리자 문의: IT담당자</span></div>
+    <div class="lf-hint">
+      초기 비밀번호: 내선번호 끝 4자리<br>
+      <span class="lf-tag">문의 · IT 담당자</span>
+    </div>
   </div>
 </div>
 
