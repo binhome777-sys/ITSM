@@ -1122,23 +1122,25 @@ function submitITSM() {
 function renderUserList() {
   const mine = items.filter(i => i.uid === ME.username);
   const body = document.getElementById('u-list-body');
-  body.innerHTML = mine.length
-    ? mine.map(i => `
-        <tr>
-          <td class="tid" style="cursor:pointer;" onclick="openDetail('${i.id}')">${i.id}</td>
-          <td onclick="openDetail('${i.id}')" style="cursor:pointer;">${i.date}</td>
-          <td onclick="openDetail('${i.id}')" style="cursor:pointer;">${typeB(i.type)}</td>
-          <td class="tname" onclick="openDetail('${i.id}')" style="cursor:pointer;">${i.content.slice(0,30)}${i.content.length>30?'…':''}</td>
-          <td onclick="openDetail('${i.id}')" style="cursor:pointer;">${sBadge(i.status)}</td>
-          <td style="color:var(--muted);font-size:12px;cursor:pointer;" onclick="openDetail('${i.id}')">${i.reg_at}</td>
-          <td onclick="event.stopPropagation()">
-            ${i.status==='대기'
-              ? `<button class="btn btn-ghost btn-xs" onclick="openEdit('${i.id}')">✏️ 수정</button>`
-              : `<span style="color:var(--muted);font-size:11px;">-</span>`
-            }
-          </td>
-        </tr>`).join('')
-    : '<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--muted);">등록된 항목이 없습니다.</td></tr>';
+  if (!mine.length) {
+    body.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--muted);">등록된 항목이 없습니다.</td></tr>';
+    return;
+  }
+  body.innerHTML = mine.map(function(i) {
+    var editBtn = i.status === '대기'
+      ? '<button class="btn btn-gold btn-xs" onclick="openEdit(\'' + i.id + '\')">✏️ 수정</button>'
+      : '<span style="color:var(--muted);font-size:11px;">-</span>';
+    var shortContent = i.content.length > 30 ? i.content.slice(0,30) + '…' : i.content;
+    return '<tr>'
+      + '<td class="tid" style="cursor:pointer;" onclick="openDetail(\'' + i.id + '\')">' + i.id + '</td>'
+      + '<td style="cursor:pointer;" onclick="openDetail(\'' + i.id + '\')">' + i.date + '</td>'
+      + '<td style="cursor:pointer;" onclick="openDetail(\'' + i.id + '\')">' + typeB(i.type) + '</td>'
+      + '<td class="tname" style="cursor:pointer;" onclick="openDetail(\'' + i.id + '\')">' + shortContent + '</td>'
+      + '<td style="cursor:pointer;" onclick="openDetail(\'' + i.id + '\')">' + sBadge(i.status) + '</td>'
+      + '<td style="color:var(--muted);font-size:12px;cursor:pointer;" onclick="openDetail(\'' + i.id + '\')">' + i.reg_at + '</td>'
+      + '<td>' + editBtn + '</td>'
+      + '</tr>';
+  }).join('');
 }
 
 // ══════════════════════════
