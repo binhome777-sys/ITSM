@@ -93,11 +93,19 @@ def admin_only(user=Depends(get_user)):
 # ─── 메인 화면 ───
 @app.get("/", response_class=HTMLResponse)
 def root():
-    path = os.path.join(os.path.dirname(__file__), "index.html")
-    if os.path.exists(path):
-        with open(path, encoding="utf-8") as f:
-            return f.read()
-    return "<h2>index.html 파일이 없습니다.</h2>"
+    # 여러 경로 시도
+    candidates = [
+        os.path.join(os.path.dirname(__file__), "index.html"),
+        os.path.join(os.getcwd(), "index.html"),
+        "index.html",
+    ]
+    for path in candidates:
+        if os.path.exists(path):
+            with open(path, encoding="utf-8") as f:
+                return f.read()
+    # 파일 목록 디버그 출력
+    cwd_files = os.listdir(os.getcwd())
+    return f"<h2>index.html 파일을 찾을 수 없습니다.</h2><p>현재 폴더: {os.getcwd()}</p><p>파일 목록: {cwd_files}</p>"
 
 # ─── 내 정보 ───
 @app.get("/api/me")
